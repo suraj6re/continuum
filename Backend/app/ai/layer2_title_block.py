@@ -9,6 +9,12 @@ TITLE_BLOCK_KEYWORDS = [
     'architect', 'engineer', 'designer'
 ]
 
+# Scale pattern regex
+SCALE_PATTERN = re.compile(
+    r"(?:scale\W*)?(\d+)\s*[:/]\s*(\d+)",
+    flags=re.IGNORECASE
+)
+
 def identify_title_block(text_entities: List[Dict], labels: np.ndarray) -> Optional[Dict]:
     """Identify title block cluster from DBSCAN results
     
@@ -54,6 +60,9 @@ def identify_title_block(text_entities: List[Dict], labels: np.ndarray) -> Optio
         # Extract metadata
         metadata = extract_metadata(best_cluster['texts'])
         
+        # Extract scale
+        scale_info = extract_scale(best_cluster['texts'])
+        
         # Compute bounding box
         positions = [t['position'] for t in best_cluster['texts']]
         bbox = _compute_bbox(positions)
@@ -64,6 +73,7 @@ def identify_title_block(text_entities: List[Dict], labels: np.ndarray) -> Optio
             'text_count': best_cluster['text_count'],
             'bounding_box': bbox,
             'metadata': metadata,
+            'scale_info': scale_info,
             'all_clusters': cluster_scores
         }
     
@@ -126,6 +136,39 @@ def extract_metadata(texts: List[Dict]) -> Dict[str, str]:
             metadata[f'text_{len(metadata)}'] = text
     
     return metadata
+
+def extract_scale(texts: List[Dict]) -> Dict:
+    """Extract scale information from title block texts
+    
+    Args:
+        texts: List of text dicts from title block cluster
+    
+    Returns:
+        Dict with scale info or needs_manual_override flag
+    """
+    for text_dict in texts:
+        text = text_dict.get('text', '').strip()
+        
+        # Search for scale pattern
+        match = SCALE_PATTERN.search(text)
+        if match:
+            numerator = int(match.group(1))
+            denominator = int(match.group(2))
+            
+            return {
+                'type': 'ratio',
+                'numerator': numerator,
+                'denominator': denominator,
+                'ratio': numerator / denominator,
+                'raw_text': text,
+                'status': 'found'
+            }
+    
+    # No scale found
+    return {
+        'status': 'missing_scale',
+        'needs_manual_override': True
+    }
 
 def _compute_bbox(positions: List[List[float]]) -> Dict:
     """Compute bounding box from positions
