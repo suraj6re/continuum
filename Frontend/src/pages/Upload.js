@@ -4,29 +4,42 @@ import UploadZone from '../components/UploadZone';
 import Stepper from '../components/Stepper';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
+import { uploadDrawing } from '../services/api';
 
 export default function Upload() {
   const [file, setFile] = useState(null);
   const [analyzing, setAnalyzing] = useState(false);
   const [currentStep, setCurrentStep] = useState(0);
+  const [uploadData, setUploadData] = useState(null);
+  const [error, setError] = useState(null);
 
   const steps = ['Upload', 'Normalize', 'Extract', 'Parse', 'QTO', 'Validate', 'Complete'];
 
-  const handleFileSelect = (selectedFile) => {
+  const handleFileSelect = async (selectedFile) => {
     setFile(selectedFile);
     setAnalyzing(true);
     setCurrentStep(1);
+    setError(null);
     
-    const interval = setInterval(() => {
-      setCurrentStep(prev => {
-        if (prev >= steps.length - 1) {
-          clearInterval(interval);
-          setAnalyzing(false);
-          return prev;
-        }
-        return prev + 1;
-      });
-    }, 1500);
+    try {
+      const response = await uploadDrawing(selectedFile);
+      setUploadData(response.data);
+      
+      const interval = setInterval(() => {
+        setCurrentStep(prev => {
+          if (prev >= steps.length - 1) {
+            clearInterval(interval);
+            setAnalyzing(false);
+            return prev;
+          }
+          return prev + 1;
+        });
+      }, 1500);
+    } catch (err) {
+      setError(err.response?.data?.detail || 'Upload failed');
+      setAnalyzing(false);
+      setFile(null);
+    }
   };
 
   return (
@@ -36,7 +49,18 @@ export default function Upload() {
         <p className="text-text-secondary">Upload construction drawings for AI-powered analysis</p>
       </div>
 
-      {!file ? (
+      {error && (
+        <Card>
+          <div className="text-center py-8">
+            <div className="text-6xl mb-4 text-red-600">✗</div>
+            <h3 className="text-2xl font-bold text-red-600 mb-2">Upload Failed</h3>
+            <p className="text-text-secondary mb-6">{error}</p>
+            <Button onClick={() => setError(null)}>Try Again</Button>
+          </div>
+        </Card>
+      )}
+
+      {!file && !error ? (
         <Card>
           <UploadZone onFileSelect={handleFileSelect} />
         </Card>
