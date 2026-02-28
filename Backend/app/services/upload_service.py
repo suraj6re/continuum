@@ -9,6 +9,8 @@ from app.utils.file_identifier import identify_file_type, is_allowed_file
 from app.ai.pipeline import route_preprocessing
 from app.ai.layer2_pipeline import run_layer2_pipeline
 from app.ai.layer3_pipeline import run_layer3_pipeline
+from app.ai.layer4_pipeline import run_layer4_pipeline
+from app.ai.layer5_pipeline import run_layer5_pipeline
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", 52428800))  # 50MB
@@ -84,6 +86,26 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
                         layer3_result = run_layer3_pipeline(result, layer2_result)
                         drawing.layer3_processed = True
                         drawing.layer3_data = layer3_result
+                        
+                        # Run Layer 4 pipeline if Layer 3 succeeded
+                        if not layer3_result.get('error'):
+                            try:
+                                layer4_result = run_layer4_pipeline(layer3_result)
+                                drawing.layer4_processed = True
+                                drawing.layer4_data = layer4_result
+                                
+                                # Run Layer 5 pipeline if Layer 4 succeeded
+                                if layer4_result.get('success'):
+                                    try:
+                                        layer5_result = run_layer5_pipeline(result, layer2_result, layer3_result, layer4_result)
+                                        drawing.layer5_processed = True
+                                        drawing.layer5_data = layer5_result
+                                    except Exception as e:
+                                        print(f"Layer 5 processing failed: {e}")
+                                        drawing.layer5_processed = False
+                            except Exception as e:
+                                print(f"Layer 4 processing failed: {e}")
+                                drawing.layer4_processed = False
                     except Exception as e:
                         print(f"Layer 3 processing failed: {e}")
                         drawing.layer3_processed = False

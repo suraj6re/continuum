@@ -103,3 +103,33 @@ async def get_layer3_data(drawing_id: str):
         "success": True,
         "data": drawing.layer3_data
     }
+
+@router.get("/drawing/{drawing_id}/layer4", response_model=dict)
+async def get_layer4_data(drawing_id: str):
+    """Get Layer 4 QTO data"""
+    drawing = await Drawing.get(drawing_id)
+    if not drawing:
+        raise HTTPException(status_code=404, detail="Drawing not found")
+    
+    if not drawing.layer4_processed:
+        raise HTTPException(status_code=404, detail="Layer 4 data not available")
+    
+    return {
+        "success": True,
+        "data": drawing.layer4_data
+    }
+
+@router.get("/drawing/{drawing_id}/layer5", response_model=dict)
+async def get_layer5_data(drawing_id: str):
+    """Get Layer 5 canonical model data"""
+    drawing = await Drawing.get(drawing_id)
+    if not drawing:
+        raise HTTPException(status_code=404, detail="Drawing not found")
+    
+    if not drawing.layer5_processed:
+        raise HTTPException(status_code=404, detail="Layer 5 data not available")
+    
+    return {
+        "success": True,
+        "data": drawing.layer5_data
+    }
