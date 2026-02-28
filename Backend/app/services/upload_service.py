@@ -7,6 +7,7 @@ from fastapi import UploadFile, HTTPException
 from app.models.drawing import Drawing
 from app.utils.file_identifier import identify_file_type, is_allowed_file
 from app.ai.pipeline import route_preprocessing
+from app.ai.layer2_pipeline import run_layer2_pipeline
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", 52428800))  # 50MB
@@ -68,6 +69,16 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
         drawing.pipeline_type = result.get('pipeline_type')
         drawing.entity_count = result.get('entity_count')
         drawing.intermediate_json = result.get('intermediate_json')
+        
+        # Run Layer 2 pipeline if vector
+        if result.get('pipeline_type') == 'vector':
+            try:
+                layer2_result = run_layer2_pipeline(result)
+                drawing.layer2_processed = True
+                drawing.layer2_data = layer2_result
+            except Exception as e:
+                print(f"Layer 2 processing failed: {e}")
+                drawing.layer2_processed = False
         
         await drawing.save()
         
