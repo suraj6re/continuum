@@ -5,6 +5,7 @@ import Stepper from '../components/Stepper';
 import Badge from '../components/Badge';
 import Button from '../components/Button';
 import PreviewModal from '../components/PreviewModal';
+import Layer1OutputModal from '../components/Layer1OutputModal';
 import { uploadDrawing, getAllDrawings } from '../services/api';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
@@ -19,6 +20,8 @@ export default function Upload() {
   const [showUploadZone, setShowUploadZone] = useState(true);
   const [showPreview, setShowPreview] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
+  const [showLayer1Output, setShowLayer1Output] = useState(false);
+  const [selectedDrawingId, setSelectedDrawingId] = useState(null);
 
   const steps = ['Upload', 'Normalize', 'Extract', 'Parse', 'QTO', 'Validate', 'Complete'];
 
@@ -121,6 +124,16 @@ export default function Upload() {
     setShowPreview(true);
   };
 
+  const handleViewLayer1Output = (file) => {
+    setSelectedDrawingId(file.id);
+    setShowLayer1Output(true);
+  };
+
+  const handleCloseLayer1Output = () => {
+    setShowLayer1Output(false);
+    setSelectedDrawingId(null);
+  };
+
   const handleClosePreview = () => {
     setShowPreview(false);
     if (previewFile && previewFile.previewUrl && previewFile.previewUrl.startsWith('blob:')) {
@@ -212,6 +225,7 @@ export default function Upload() {
                 <div className="flex items-center space-x-3">
                   <Badge variant="success">{file.status}</Badge>
                   <Button size="sm" variant="outline" onClick={() => handleViewPreviousFile(file)}>View</Button>
+                  <Button size="sm" onClick={() => handleViewLayer1Output(file)}>Normalize</Button>
                 </div>
               </div>
             ))}
@@ -223,6 +237,13 @@ export default function Upload() {
         <PreviewModal 
           file={previewFile} 
           onClose={handleClosePreview} 
+        />
+      )}
+
+      {showLayer1Output && selectedDrawingId && (
+        <Layer1OutputModal
+          drawingId={selectedDrawingId}
+          onClose={handleCloseLayer1Output}
         />
       )}
     </div>

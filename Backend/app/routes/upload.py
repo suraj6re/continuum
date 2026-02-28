@@ -44,7 +44,12 @@ async def get_all_drawings():
                 "file_type": d.file_type,
                 "file_size": d.file_size,
                 "status": d.status,
-                "uploaded_at": d.uploaded_at.isoformat()
+                "uploaded_at": d.uploaded_at.isoformat(),
+                "processed": d.processed,
+                "processed_at": d.processed_at.isoformat() if d.processed_at else None,
+                "processing_error": d.processing_error,
+                "entity_count": d.entity_count,
+                "pipeline_type": d.pipeline_type
             }
             for d in drawings
         ]
@@ -66,6 +71,20 @@ async def get_drawing(drawing_id: str):
             "file_type": drawing.file_type,
             "file_size": drawing.file_size,
             "status": drawing.status,
-            "uploaded_at": drawing.uploaded_at.isoformat()
+            "uploaded_at": drawing.uploaded_at.isoformat(),
+            "processed": drawing.processed,
+            "processed_at": drawing.processed_at.isoformat() if drawing.processed_at else None,
+            "processing_error": drawing.processing_error,
+            # Layer 1 results
+            "geometry": drawing.geometry,
+            "bounding_box": drawing.bounding_box,
+            "text": drawing.text,
+            "scale_candidates": drawing.scale_candidates,
+            "units": drawing.units,
+            "layers": drawing.layers,
+            "blocks": drawing.blocks,
+            "pipeline_type": drawing.pipeline_type,
+            "entity_count": drawing.entity_count,
+            "intermediate_json": drawing.intermediate_json
         }
     }

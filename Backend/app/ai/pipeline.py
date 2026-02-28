@@ -1,8 +1,11 @@
 import fitz  # PyMuPDF
 from pathlib import Path
 from typing import Dict
+import os
 from app.ai.raster_pipeline import run_raster_pipeline
-from app.ai.vector_pipeline import run_vector_pipeline
+from app.ai.dxf_enhanced import process_dxf_enhanced
+from app.ai.svg_enhanced import parse_svg_enhanced
+from app.ai.intermediate_utils import save_intermediate_representation, extract_scale_candidates
 
 RASTER_EXTENSIONS = {'.png', '.jpg', '.jpeg'}
 VECTOR_EXTENSIONS = {'.dxf', '.dwg'}
@@ -18,21 +21,39 @@ def route_preprocessing(file_path: str, file_type: str) -> Dict:
     
     # Raster pipeline
     if file_ext in RASTER_EXTENSIONS or file_type_upper in ['PNG', 'JPG', 'JPEG']:
-        return run_raster_pipeline(file_path)
+        result = run_raster_pipeline(file_path)
     
-    # Vector pipeline
-    elif file_ext in VECTOR_EXTENSIONS or file_type_upper in ['DXF', 'DWG', 'CAD']:
-        return run_vector_pipeline(file_path, file_type_upper)
+    # Vector pipeline - DXF
+    elif file_ext == '.dxf' or file_type_upper == 'DXF':
+        result = process_dxf_enhanced(file_path)
+    
+    # Vector pipeline - DWG (placeholder)
+    elif file_ext == '.dwg' or file_type_upper == 'DWG':
+        return {'error': 'DWG requires conversion to DXF', 'pipeline_type': 'vector'}
     
     # PDF - needs detection
     elif file_ext == PDF_EXTENSION or file_type_upper == 'PDF':
         if is_vector_pdf(file_path):
-            return process_vector_pdf(file_path)
+            result = process_vector_pdf_svg(file_path)
         else:
-            return run_raster_pipeline(file_path)
+            result = run_raster_pipeline(file_path)
     
     else:
         raise ValueError(f"Unsupported file type: {file_type}")
+    
+    # STEP 10: Extract scale candidates from text
+    if 'text' in result and result.get('pipeline_type') == 'vector':
+        scale_candidates = extract_scale_candidates(result['text'])
+        result['scale_candidates'] = scale_candidates
+    
+    # STEP 9: Save intermediate representation
+    try:
+        json_path = save_intermediate_representation(result, file_path)
+        result['intermediate_json'] = json_path
+    except Exception as e:
+        print(f"Warning: Could not save intermediate JSON: {e}")
+    
+    return result
 
 def is_vector_pdf(file_path: str) -> bool:
     """
@@ -63,7 +84,45 @@ def is_vector_pdf(file_path: str) -> bool:
         print(f"PDF detection error: {e}")
         return False
 
-def process_vector_pdf(file_path: str) -> Dict:
+def process_vector_pdf_svg(file_path: str) -> Dict:
+    """Process vector PDF using SVG conversion"""
+    try:
+        doc = fitz.open(file_path)
+        page = doc[0]
+        
+        # Get page dimensions
+        page_rect = page.rect
+        page_height = page_rect.height
+        
+        # Extract text blocks from PDF
+        text_instances = page.get_text("dict")
+        text_entities = []
+        
+        for block in text_instances.get('blocks', []):
+            if block.get('type') == 0:  # text block
+                for line in block.get('lines', []):
+                    for span in line.get('spans', []):
+                        bbox = span.get('bbox', [0, 0, 0, 0])
+                        text_entities.append({
+                            'text': span.get('text', ''),
+                            'position': [bbox[0], bbox[1]],
+                            'layer': '0'
+                        })
+        
+        # Convert to SVG
+        svg_data = page.get_svg_image()
+        doc.close()
+        
+        # Parse SVG with enhanced parser
+        result = parse_svg_enhanced(svg_data, page_height)
+        
+        # Merge PDF text with SVG text
+        result['text'].extend(text_entities)
+        
+        return result
+    
+    except Exception as e:
+        raise ValueError(f"Failed to process vector PDF: {str(e)}")
     """
     Extract vector data from PDF
     """

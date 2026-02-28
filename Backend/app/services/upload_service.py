@@ -2,9 +2,11 @@ import os
 import uuid
 import aiofiles
 from pathlib import Path
+from datetime import datetime
 from fastapi import UploadFile, HTTPException
 from app.models.drawing import Drawing
 from app.utils.file_identifier import identify_file_type, is_allowed_file
+from app.ai.pipeline import route_preprocessing
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", 52428800))  # 50MB
@@ -43,8 +45,37 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
         original_filename=upload_file.filename,
         file_type=file_type,
         file_size=file_size,
-        file_path=file_path
+        file_path=file_path,
+        status="processing"
     )
     await drawing.insert()
+    
+    # Process with Layer 1 pipeline
+    try:
+        result = route_preprocessing(file_path, file_type)
+        
+        # Store Layer 1 results in database
+        drawing.processed = True
+        drawing.processed_at = datetime.utcnow()
+        drawing.status = "processed"
+        drawing.geometry = result.get('geometry')
+        drawing.bounding_box = result.get('bounding_box')
+        drawing.text = result.get('text')
+        drawing.scale_candidates = result.get('scale_candidates', [])
+        drawing.units = result.get('units')
+        drawing.layers = result.get('layers')
+        drawing.blocks = result.get('blocks')
+        drawing.pipeline_type = result.get('pipeline_type')
+        drawing.entity_count = result.get('entity_count')
+        drawing.intermediate_json = result.get('intermediate_json')
+        
+        await drawing.save()
+        
+    except Exception as e:
+        # Store error but don't fail upload
+        drawing.processed = False
+        drawing.processing_error = str(e)
+        drawing.status = "error"
+        await drawing.save()
     
     return drawing
