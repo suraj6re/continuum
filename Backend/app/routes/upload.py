@@ -88,3 +88,18 @@ async def get_layer2_data(drawing_id: str):
         "success": True,
         "data": drawing.layer2_data
     }
+
+@router.get("/drawing/{drawing_id}/layer3", response_model=dict)
+async def get_layer3_data(drawing_id: str):
+    """Get Layer 3 quantity takeoff data"""
+    drawing = await Drawing.get(drawing_id)
+    if not drawing:
+        raise HTTPException(status_code=404, detail="Drawing not found")
+    
+    if not drawing.layer3_processed:
+        raise HTTPException(status_code=404, detail="Layer 3 data not available")
+    
+    return {
+        "success": True,
+        "data": drawing.layer3_data
+    }

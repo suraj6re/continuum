@@ -34,5 +34,9 @@ class Drawing(Document):
     layer2_processed: bool = False
     layer2_data: Optional[Dict[str, Any]] = None
     
+    # Layer 3 output
+    layer3_processed: bool = False
+    layer3_data: Optional[Dict[str, Any]] = None
+    
     class Settings:
         name = "drawings"

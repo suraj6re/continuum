@@ -6,9 +6,11 @@ import Badge from '../components/Badge';
 import Button from '../components/Button';
 import PreviewModal from '../components/PreviewModal';
 import Layer1OutputModal from '../components/Layer1OutputModal';
+import Layer3OutputModal from '../components/Layer3OutputModal';
 import NormalizeLayerOutput from '../components/NormalizeLayerOutput';
 import Layer2Output from '../components/Layer2Output';
-import { uploadDrawing, getAllDrawings, getLayer2Data } from '../services/api';
+import Layer3Output from '../components/Layer3Output';
+import { uploadDrawing, getAllDrawings, getLayer2Data, getLayer3Data } from '../services/api';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -23,10 +25,12 @@ export default function Upload() {
   const [showPreview, setShowPreview] = useState(false);
   const [previewFile, setPreviewFile] = useState(null);
   const [showLayer1Output, setShowLayer1Output] = useState(false);
+  const [showLayer3Output, setShowLayer3Output] = useState(false);
   const [selectedDrawingId, setSelectedDrawingId] = useState(null);
   const [activeStep, setActiveStep] = useState(null);
   const [normalizeData, setNormalizeData] = useState(null);
   const [layer2Data, setLayer2Data] = useState(null);
+  const [layer3Data, setLayer3Data] = useState(null);
 
   const steps = ['Upload', 'Normalize', 'Extract', 'Parse', 'QTO', 'Validate', 'Complete'];
 
@@ -100,6 +104,18 @@ export default function Upload() {
               console.log('Layer 2 data not available');
             }
           }
+          
+          // Fetch Layer 3 data if available
+          if (drawingData.data.layer3_processed) {
+            try {
+              const layer3Response = await getLayer3Data(response.data.id);
+              if (layer3Response.success) {
+                setLayer3Data(layer3Response.data);
+              }
+            } catch (err) {
+              console.log('Layer 3 data not available');
+            }
+          }
         }
       }
       
@@ -134,6 +150,8 @@ export default function Upload() {
       setActiveStep('normalize');
     } else if (step === 'extract' && layer2Data) {
       setActiveStep('extract');
+    } else if (step === 'parse' && layer3Data) {
+      setActiveStep('parse');
     }
   };
 
@@ -162,6 +180,16 @@ export default function Upload() {
 
   const handleCloseLayer1Output = () => {
     setShowLayer1Output(false);
+    setSelectedDrawingId(null);
+  };
+
+  const handleViewLayer3Output = (file) => {
+    setSelectedDrawingId(file.id);
+    setShowLayer3Output(true);
+  };
+
+  const handleCloseLayer3Output = () => {
+    setShowLayer3Output(false);
     setSelectedDrawingId(null);
   };
 
@@ -250,6 +278,12 @@ export default function Upload() {
         </Card>
       )}
 
+      {activeStep === 'parse' && layer3Data && (
+        <Card>
+          <Layer3Output data={layer3Data} />
+        </Card>
+      )}
+
       {uploadedFiles.length > 0 && showUploadZone && (
         <Card title={`Previously Uploaded Files (${uploadedFiles.length})`} className="mt-6">
           <div className="space-y-3">
@@ -274,6 +308,7 @@ export default function Upload() {
                   <Badge variant="success">{file.status}</Badge>
                   <Button size="sm" variant="outline" onClick={() => handleViewPreviousFile(file)}>View</Button>
                   <Button size="sm" onClick={() => handleViewLayer1Output(file)}>Normalize</Button>
+                  <Button size="sm" onClick={() => handleViewLayer3Output(file)}>Analyze</Button>
                 </div>
               </div>
             ))}
@@ -292,6 +327,13 @@ export default function Upload() {
         <Layer1OutputModal
           drawingId={selectedDrawingId}
           onClose={handleCloseLayer1Output}
+        />
+      )}
+
+      {showLayer3Output && selectedDrawingId && (
+        <Layer3OutputModal
+          drawingId={selectedDrawingId}
+          onClose={handleCloseLayer3Output}
         />
       )}
     </div>

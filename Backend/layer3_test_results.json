@@ -1,0 +1,60 @@
+{
+  "layer1_summary": {
+    "LINE": 8,
+    "TEXT": 6
+  },
+  "layer2_summary": {
+    "title_block": "found",
+    "scale": {
+      "numerator": 1,
+      "denominator": 100,
+      "ratio": 0.01,
+      "raw_text": "Scale: 1:100"
+    },
+    "schedules": 1
+  },
+  "layer3_step1": {
+    "total_entities": 14,
+    "drawing_entities_count": 14,
+    "filtered_out_count": 0,
+    "retention_rate": 1.0,
+    "buffer_size": 0.21,
+    "entity_types": {
+      "LINE": 8,
+      "TEXT": 6
+    }
+  },
+  "layer3_step2": {
+    "total_walls": 0,
+    "double_line_count": 0,
+    "polyline_count": 0,
+    "candidate_lines": 6,
+    "total_lines": 8
+  },
+  "layer3_step3": {
+    "total_slabs": 0,
+    "candidates": 0
+  },
+  "layer3_step4": {
+    "total_columns": 0,
+    "candidates": 0
+  },
+  "layer3_step5": {
+    "total_doors": 0,
+    "total_windows": 0,
+    "text_candidates": 0
+  },
+  "layer3_step6": {
+    "total_dimensions": 0,
+    "numeric_candidates": 0
+  },
+  "layer3_step7": {
+    "nodes": 0,
+    "edges": 0,
+    "door_wall_links": 0,
+    "window_wall_links": 0,
+    "column_slab_links": 0,
+    "wall_junctions": 0,
+    "connected_components": 0
+  }
+}

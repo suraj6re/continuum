@@ -8,6 +8,7 @@ from app.models.drawing import Drawing
 from app.utils.file_identifier import identify_file_type, is_allowed_file
 from app.ai.pipeline import route_preprocessing
 from app.ai.layer2_pipeline import run_layer2_pipeline
+from app.ai.layer3_pipeline import run_layer3_pipeline
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", 52428800))  # 50MB
@@ -76,6 +77,16 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
                 layer2_result = run_layer2_pipeline(result)
                 drawing.layer2_processed = True
                 drawing.layer2_data = layer2_result
+                
+                # Run Layer 3 pipeline if Layer 2 succeeded
+                if layer2_result.get('status') == 'success':
+                    try:
+                        layer3_result = run_layer3_pipeline(result, layer2_result)
+                        drawing.layer3_processed = True
+                        drawing.layer3_data = layer3_result
+                    except Exception as e:
+                        print(f"Layer 3 processing failed: {e}")
+                        drawing.layer3_processed = False
             except Exception as e:
                 print(f"Layer 2 processing failed: {e}")
                 drawing.layer2_processed = False

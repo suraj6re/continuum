@@ -37,4 +37,9 @@ export const getLayer2Data = async (drawingId) => {
   return response.data;
 };
 
+export const getLayer3Data = async (drawingId) => {
+  const response = await api.get(`/api/upload/drawing/${drawingId}/layer3`);
+  return response.data;
+};
+
 export default api;
