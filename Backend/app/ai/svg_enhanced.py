@@ -53,8 +53,8 @@ def parse_svg_element(element, ns: Dict, parent_transform: np.ndarray, page_heig
     
     # LINE
     if tag == 'line':
-        start = Point(float(element.get('x1', 0)), float(element.get('y1', 0)))
-        end = Point(float(element.get('x2', 0)), float(element.get('y2', 0)))
+        start = Point(safe_float(element.get('x1', 0)), safe_float(element.get('y1', 0)))
+        end = Point(safe_float(element.get('x2', 0)), safe_float(element.get('y2', 0)))
         
         start = apply_transform_matrix(flip_y_coordinate(start, page_height), combined_transform)
         end = apply_transform_matrix(flip_y_coordinate(end, page_height), combined_transform)
@@ -75,19 +75,19 @@ def parse_svg_element(element, ns: Dict, parent_transform: np.ndarray, page_heig
     
     # CIRCLE
     elif tag == 'circle':
-        cx = float(element.get('cx', 0))
-        cy = float(element.get('cy', 0))
-        r = float(element.get('r', 0))
+        cx = safe_float(element.get('cx', 0))
+        cy = safe_float(element.get('cy', 0))
+        r = safe_float(element.get('r', 0))
         
         center = apply_transform_matrix(flip_y_coordinate(Point(cx, cy), page_height), combined_transform)
         entities.append(Circle(center=center, radius=r, **stroke_attrs))
     
     # ELLIPSE
     elif tag == 'ellipse':
-        cx = float(element.get('cx', 0))
-        cy = float(element.get('cy', 0))
-        rx = float(element.get('rx', 0))
-        ry = float(element.get('ry', 0))
+        cx = safe_float(element.get('cx', 0))
+        cy = safe_float(element.get('cy', 0))
+        rx = safe_float(element.get('rx', 0))
+        ry = safe_float(element.get('ry', 0))
         
         # Approximate as polyline
         points = approximate_ellipse_svg(cx, cy, rx, ry, page_height, combined_transform)
@@ -102,8 +102,8 @@ def parse_svg_element(element, ns: Dict, parent_transform: np.ndarray, page_heig
     
     # TEXT
     elif tag == 'text':
-        x = float(element.get('x', 0))
-        y = float(element.get('y', 0))
+        x = safe_float(element.get('x', 0))
+        y = safe_float(element.get('y', 0))
         text_content = ''.join(element.itertext())
         font_size = parse_font_size(element.get('font-size', '12'))
         
@@ -144,7 +144,7 @@ def parse_svg_path(d: str, page_height: float, transform: np.ndarray, stroke_att
         # Move (M/m)
         if cmd in ['M', 'm']:
             i += 1
-            x, y = float(commands[i]), float(commands[i+1])
+            x, y = safe_float(commands[i]), safe_float(commands[i+1])
             if cmd == 'm':  # relative
                 current_point = Point(current_point.x + x, current_point.y + y)
             else:  # absolute
@@ -156,7 +156,7 @@ def parse_svg_path(d: str, page_height: float, transform: np.ndarray, stroke_att
         # Line (L/l)
         elif cmd in ['L', 'l']:
             i += 1
-            x, y = float(commands[i]), float(commands[i+1])
+            x, y = safe_float(commands[i]), safe_float(commands[i+1])
             if cmd == 'l':
                 current_point = Point(current_point.x + x, current_point.y + y)
             else:
@@ -167,7 +167,7 @@ def parse_svg_path(d: str, page_height: float, transform: np.ndarray, stroke_att
         # Horizontal (H/h)
         elif cmd in ['H', 'h']:
             i += 1
-            x = float(commands[i])
+            x = safe_float(commands[i])
             if cmd == 'h':
                 current_point = Point(current_point.x + x, current_point.y)
             else:
@@ -178,7 +178,7 @@ def parse_svg_path(d: str, page_height: float, transform: np.ndarray, stroke_att
         # Vertical (V/v)
         elif cmd in ['V', 'v']:
             i += 1
-            y = float(commands[i])
+            y = safe_float(commands[i])
             if cmd == 'v':
                 current_point = Point(current_point.x, current_point.y + y)
             else:
@@ -189,9 +189,9 @@ def parse_svg_path(d: str, page_height: float, transform: np.ndarray, stroke_att
         # Cubic Bezier (C/c)
         elif cmd in ['C', 'c']:
             i += 1
-            x1, y1 = float(commands[i]), float(commands[i+1])
-            x2, y2 = float(commands[i+2]), float(commands[i+3])
-            x, y = float(commands[i+4]), float(commands[i+5])
+            x1, y1 = safe_float(commands[i]), safe_float(commands[i+1])
+            x2, y2 = safe_float(commands[i+2]), safe_float(commands[i+3])
+            x, y = safe_float(commands[i+4]), safe_float(commands[i+5])
             
             if cmd == 'c':
                 x1 += current_point.x; y1 += current_point.y
@@ -209,8 +209,8 @@ def parse_svg_path(d: str, page_height: float, transform: np.ndarray, stroke_att
         # Quadratic Bezier (Q/q)
         elif cmd in ['Q', 'q']:
             i += 1
-            x1, y1 = float(commands[i]), float(commands[i+1])
-            x, y = float(commands[i+2]), float(commands[i+3])
+            x1, y1 = safe_float(commands[i]), safe_float(commands[i+1])
+            x, y = safe_float(commands[i+2]), safe_float(commands[i+3])
             
             if cmd == 'q':
                 x1 += current_point.x; y1 += current_point.y
@@ -245,8 +245,21 @@ def parse_svg_path(d: str, page_height: float, transform: np.ndarray, stroke_att
     
     return entities
 
+def safe_float(value: str) -> float:
+    """Safely convert string to float with error handling"""
+    try:
+        # Remove commas and extra spaces
+        cleaned = value.replace(',', '.').strip()
+        return float(cleaned)
+    except (ValueError, AttributeError):
+        return 0.0
+
 def tokenize_path(d: str) -> List[str]:
-    """Tokenize SVG path data"""
+    """Tokenize SVG path data with error handling"""
+    # Clean the path string
+    d = d.replace(',', ' ')  # Replace commas with spaces
+    d = re.sub(r'\s+', ' ', d)  # Normalize whitespace
+    
     # Split by commands and numbers
     tokens = re.findall(r'[MmLlHhVvCcSsQqTtAaZz]|[-+]?[0-9]*\.?[0-9]+(?:[eE][-+]?[0-9]+)?', d)
     return tokens
@@ -289,7 +302,7 @@ def parse_points_attribute(points_str: str) -> List[Point]:
     points = []
     for i in range(0, len(coords), 2):
         if i + 1 < len(coords):
-            points.append(Point(float(coords[i]), float(coords[i+1])))
+            points.append(Point(safe_float(coords[i]), safe_float(coords[i+1])))
     return points
 
 def extract_stroke_attributes(element) -> Dict:

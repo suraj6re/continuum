@@ -25,11 +25,8 @@ async def analyze_drawing(drawing_id: str) -> dict:
         
         return {
             'drawing_id': str(drawing.id),
-            'pipeline_type': result['pipeline_type'],
-            'geometry': result['geometry'],
-            'text': result.get('text') or result.get('parsed_text'),
-            'scale': result.get('scale') or result.get('units'),
-            'status': 'success'
+            'status': 'success',
+            **result
         }
     
     except Exception as e:

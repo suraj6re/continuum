@@ -6,6 +6,7 @@ from app.ai.raster_pipeline import run_raster_pipeline
 from app.ai.dxf_enhanced import process_dxf_enhanced
 from app.ai.svg_enhanced import parse_svg_enhanced
 from app.ai.intermediate_utils import save_intermediate_representation, extract_scale_candidates
+from app.ai.dwg_converter import convert_dwg_to_dxf
 
 RASTER_EXTENSIONS = {'.png', '.jpg', '.jpeg'}
 VECTOR_EXTENSIONS = {'.dxf', '.dwg'}
@@ -27,9 +28,10 @@ def route_preprocessing(file_path: str, file_type: str) -> Dict:
     elif file_ext == '.dxf' or file_type_upper == 'DXF':
         result = process_dxf_enhanced(file_path)
     
-    # Vector pipeline - DWG (placeholder)
+    # Vector pipeline - DWG
     elif file_ext == '.dwg' or file_type_upper == 'DWG':
-        return {'error': 'DWG requires conversion to DXF', 'pipeline_type': 'vector'}
+        dxf_path = convert_dwg_to_dxf(file_path)
+        result = process_dxf_enhanced(dxf_path)
     
     # PDF - needs detection
     elif file_ext == PDF_EXTENSION or file_type_upper == 'PDF':

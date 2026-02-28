@@ -6,6 +6,7 @@ import Badge from '../components/Badge';
 import Button from '../components/Button';
 import PreviewModal from '../components/PreviewModal';
 import Layer1OutputModal from '../components/Layer1OutputModal';
+import NormalizeLayerOutput from '../components/NormalizeLayerOutput';
 import { uploadDrawing, getAllDrawings } from '../services/api';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
@@ -22,6 +23,8 @@ export default function Upload() {
   const [previewFile, setPreviewFile] = useState(null);
   const [showLayer1Output, setShowLayer1Output] = useState(false);
   const [selectedDrawingId, setSelectedDrawingId] = useState(null);
+  const [activeStep, setActiveStep] = useState(null);
+  const [normalizeData, setNormalizeData] = useState(null);
 
   const steps = ['Upload', 'Normalize', 'Extract', 'Parse', 'QTO', 'Validate', 'Complete'];
 
@@ -77,6 +80,11 @@ export default function Upload() {
     try {
       const response = await uploadDrawing(selectedFile);
       
+      // Store normalize data from response
+      if (response.success && response.data) {
+        setNormalizeData(response.data);
+      }
+      
       const interval = setInterval(() => {
         setCurrentStep(prev => {
           if (prev >= steps.length - 1) {
@@ -99,10 +107,13 @@ export default function Upload() {
     }
   };
 
-  const handleStepClick = () => {
-    if (uploadedFileData) {
+  const handleStepClick = (step) => {
+    if (step === 'upload' && uploadedFileData) {
       setPreviewFile(uploadedFileData);
       setShowPreview(true);
+      setActiveStep(null);
+    } else if (step === 'normalize' && normalizeData) {
+      setActiveStep('normalize');
     }
   };
 
@@ -166,7 +177,12 @@ export default function Upload() {
         </Card>
       ) : (
         <Card title="Analysis Progress">
-          <Stepper steps={steps} currentStep={currentStep} onStepClick={handleStepClick} />
+          <Stepper 
+            steps={steps} 
+            currentStep={currentStep} 
+            onStepClick={handleStepClick}
+            activeStep={activeStep}
+          />
           
           {currentUpload && currentStep === 0 && (
             <div className="mt-6 pt-6 border-t border-border-warm">
@@ -199,6 +215,12 @@ export default function Upload() {
               </div>
             </div>
           )}
+        </Card>
+      )}
+
+      {activeStep === 'normalize' && normalizeData && (
+        <Card>
+          <NormalizeLayerOutput data={normalizeData} />
         </Card>
       )}
 
