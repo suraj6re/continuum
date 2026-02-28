@@ -73,3 +73,18 @@ async def get_drawing(drawing_id: str):
         "success": True,
         "data": drawing_dict
     }
+
+@router.get("/drawing/{drawing_id}/layer2", response_model=dict)
+async def get_layer2_data(drawing_id: str):
+    """Get Layer 2 semantic analysis data"""
+    drawing = await Drawing.get(drawing_id)
+    if not drawing:
+        raise HTTPException(status_code=404, detail="Drawing not found")
+    
+    if not drawing.layer2_processed:
+        raise HTTPException(status_code=404, detail="Layer 2 data not available")
+    
+    return {
+        "success": True,
+        "data": drawing.layer2_data
+    }

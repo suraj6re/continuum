@@ -7,7 +7,8 @@ import Button from '../components/Button';
 import PreviewModal from '../components/PreviewModal';
 import Layer1OutputModal from '../components/Layer1OutputModal';
 import NormalizeLayerOutput from '../components/NormalizeLayerOutput';
-import { uploadDrawing, getAllDrawings } from '../services/api';
+import Layer2Output from '../components/Layer2Output';
+import { uploadDrawing, getAllDrawings, getLayer2Data } from '../services/api';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -25,6 +26,7 @@ export default function Upload() {
   const [selectedDrawingId, setSelectedDrawingId] = useState(null);
   const [activeStep, setActiveStep] = useState(null);
   const [normalizeData, setNormalizeData] = useState(null);
+  const [layer2Data, setLayer2Data] = useState(null);
 
   const steps = ['Upload', 'Normalize', 'Extract', 'Parse', 'QTO', 'Validate', 'Complete'];
 
@@ -86,6 +88,18 @@ export default function Upload() {
         const drawingData = await drawingResponse.json();
         if (drawingData.success) {
           setNormalizeData(drawingData.data);
+          
+          // Fetch Layer 2 data if available
+          if (drawingData.data.layer2_processed) {
+            try {
+              const layer2Response = await getLayer2Data(response.data.id);
+              if (layer2Response.success) {
+                setLayer2Data(layer2Response.data);
+              }
+            } catch (err) {
+              console.log('Layer 2 data not available');
+            }
+          }
         }
       }
       
@@ -118,6 +132,8 @@ export default function Upload() {
       setActiveStep(null);
     } else if (step === 'normalize' && normalizeData) {
       setActiveStep('normalize');
+    } else if (step === 'extract' && layer2Data) {
+      setActiveStep('extract');
     }
   };
 
@@ -225,6 +241,12 @@ export default function Upload() {
       {activeStep === 'normalize' && normalizeData && (
         <Card>
           <NormalizeLayerOutput data={normalizeData} />
+        </Card>
+      )}
+
+      {activeStep === 'extract' && layer2Data && (
+        <Card>
+          <Layer2Output data={layer2Data} />
         </Card>
       )}
 

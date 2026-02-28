@@ -30,5 +30,9 @@ class Drawing(Document):
     entity_count: Optional[Dict[str, int]] = None
     intermediate_json: Optional[str] = None
     
+    # Layer 2 output
+    layer2_processed: bool = False
+    layer2_data: Optional[Dict[str, Any]] = None
+    
     class Settings:
         name = "drawings"
