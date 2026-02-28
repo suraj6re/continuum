@@ -80,9 +80,13 @@ export default function Upload() {
     try {
       const response = await uploadDrawing(selectedFile);
       
-      // Store normalize data from response
-      if (response.success && response.data) {
-        setNormalizeData(response.data);
+      // Fetch the full drawing data with Layer 1 results
+      if (response.success && response.data && response.data.id) {
+        const drawingResponse = await fetch(`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/upload/drawing/${response.data.id}`);
+        const drawingData = await drawingResponse.json();
+        if (drawingData.success) {
+          setNormalizeData(drawingData.data);
+        }
       }
       
       const interval = setInterval(() => {

@@ -62,29 +62,14 @@ async def get_drawing(drawing_id: str):
     if not drawing:
         raise HTTPException(status_code=404, detail="Drawing not found")
     
+    # Return complete drawing data as dict
+    drawing_dict = drawing.dict()
+    drawing_dict['id'] = str(drawing.id)
+    drawing_dict['uploaded_at'] = drawing.uploaded_at.isoformat()
+    if drawing.processed_at:
+        drawing_dict['processed_at'] = drawing.processed_at.isoformat()
+    
     return {
         "success": True,
-        "data": {
-            "id": str(drawing.id),
-            "filename": drawing.filename,
-            "original_filename": drawing.original_filename,
-            "file_type": drawing.file_type,
-            "file_size": drawing.file_size,
-            "status": drawing.status,
-            "uploaded_at": drawing.uploaded_at.isoformat(),
-            "processed": drawing.processed,
-            "processed_at": drawing.processed_at.isoformat() if drawing.processed_at else None,
-            "processing_error": drawing.processing_error,
-            # Layer 1 results
-            "geometry": drawing.geometry,
-            "bounding_box": drawing.bounding_box,
-            "text": drawing.text,
-            "scale_candidates": drawing.scale_candidates,
-            "units": drawing.units,
-            "layers": drawing.layers,
-            "blocks": drawing.blocks,
-            "pipeline_type": drawing.pipeline_type,
-            "entity_count": drawing.entity_count,
-            "intermediate_json": drawing.intermediate_json
-        }
+        "data": drawing_dict
     }
