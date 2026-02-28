@@ -1,70 +1,161 @@
-# Getting Started with Create React App
+# StructIQ - AI-Powered Construction Intelligence Platform
 
-This project was bootstrapped with [Create React App](https://github.com/facebook/create-react-app).
+## Overview
 
-## Available Scripts
+StructIQ is an enterprise-grade AI platform designed for civil engineers, contractors, and project managers. It automates construction workflows from drawing analysis to cost estimation and scheduling.
 
-In the project directory, you can run:
+## Features
 
-### `npm start`
+- **Automated QTO**: AI-powered quantity take-off from 2D drawings
+- **Cost Intelligence**: Smart cost estimation with uncertainty bands
+- **Smart Scheduling**: Phase-wise schedules with productivity logic
+- **Validation Engine**: Confidence scoring and precision checks
+- **Optimization**: AI-powered cost optimization suggestions
+- **Supplier Management**: Verified supplier network and comparison
+- **Procurement**: RFQ generation and supplier communication
+- **Reports**: Export compliance-ready documentation
 
-Runs the app in the development mode.\
-Open [http://localhost:3000](http://localhost:3000) to view it in your browser.
+## Tech Stack
 
-The page will reload when you make changes.\
-You may also see any lint errors in the console.
+- **Frontend**: React 19
+- **Styling**: Tailwind CSS
+- **Architecture**: Functional components with hooks
+- **Design System**: Custom warm color palette for construction industry
 
-### `npm test`
+## Color System
 
-Launches the test runner in the interactive watch mode.\
-See the section about [running tests](https://facebook.github.io/create-react-app/docs/running-tests) for more information.
+The platform uses a warm, industrial color palette:
 
-### `npm run build`
+- **Brand Charcoal**: #1C1917 (Sidebar, headers)
+- **Construction Orange**: #EA580C (Primary CTAs)
+- **Warm Amber Gold**: #D97706 (Secondary actions)
+- **Warm White**: #FAFAF9 (Page background)
+- **Pure White**: #FFFFFF (Cards)
 
-Builds the app for production to the `build` folder.\
-It correctly bundles React in production mode and optimizes the build for the best performance.
+## Project Structure
 
-The build is minified and the filenames include the hashes.\
-Your app is ready to be deployed!
+```
+src/
+├── components/          # Reusable UI components
+│   ├── Button.js
+│   ├── Card.js
+│   ├── Badge.js
+│   ├── Table.js
+│   ├── ProgressBar.js
+│   ├── Stepper.js
+│   └── UploadZone.js
+├── layouts/            # Layout components
+│   ├── MainLayout.js
+│   ├── Sidebar.js
+│   └── Topbar.js
+├── pages/              # Page components
+│   ├── Landing.js
+│   ├── Login.js
+│   ├── Overview.js
+│   ├── Upload.js
+│   ├── QTO.js
+│   ├── Cost.js
+│   ├── Schedule.js
+│   ├── Validation.js
+│   ├── Optimization.js
+│   ├── Suppliers.js
+│   ├── Procurement.js
+│   ├── Reports.js
+│   └── Settings.js
+├── App.js              # Main application component
+└── index.js            # Entry point
+```
 
-See the section about [deployment](https://facebook.github.io/create-react-app/docs/deployment) for more information.
+## Setup Instructions
 
-### `npm run eject`
+### 1. Install Dependencies
 
-**Note: this is a one-way operation. Once you `eject`, you can't go back!**
+```bash
+npm install
+```
 
-If you aren't satisfied with the build tool and configuration choices, you can `eject` at any time. This command will remove the single build dependency from your project.
+### 2. Start Development Server
 
-Instead, it will copy all the configuration files and the transitive dependencies (webpack, Babel, ESLint, etc) right into your project so you have full control over them. All of the commands except `eject` will still work, but they will point to the copied scripts so you can tweak them. At this point you're on your own.
+```bash
+npm start
+```
 
-You don't have to ever use `eject`. The curated feature set is suitable for small and middle deployments, and you shouldn't feel obligated to use this feature. However we understand that this tool wouldn't be useful if you couldn't customize it when you are ready for it.
+The application will open at [http://localhost:3000](http://localhost:3000)
 
-## Learn More
+### 3. Build for Production
 
-You can learn more in the [Create React App documentation](https://facebook.github.io/create-react-app/docs/getting-started).
+```bash
+npm run build
+```
 
-To learn React, check out the [React documentation](https://reactjs.org/).
+## User Flow
 
-### Code Splitting
+1. **Landing Page**: Introduction and feature overview
+2. **Login**: Authentication
+3. **Overview Dashboard**: Project statistics and recent activity
+4. **Upload Drawing**: Drag-and-drop file upload with analysis workflow
+5. **QTO**: View extracted quantities with confidence scores
+6. **Cost Intelligence**: Cost estimation with uncertainty bands
+7. **Schedule**: Phase-wise project timeline
+8. **Validation**: Quality checks and confidence scoring
+9. **Optimization**: Cost-saving suggestions
+10. **Suppliers**: Supplier directory and comparison
+11. **Procurement**: RFQ generation
+12. **Reports**: Export documentation
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/code-splitting](https://facebook.github.io/create-react-app/docs/code-splitting)
+## Design Principles
 
-### Analyzing the Bundle Size
+- **Enterprise-grade**: Professional, reliable interface
+- **Engineering precision**: Clear data hierarchy and validation
+- **Explainability**: Transparent AI outputs with confidence scores
+- **Human-in-the-loop**: Review and approval workflows
+- **Compliance-ready**: Export standardized reports
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size](https://facebook.github.io/create-react-app/docs/analyzing-the-bundle-size)
+## Component Usage
 
-### Making a Progressive Web App
+### Button
+```jsx
+<Button variant="primary" size="md">Click Me</Button>
+<Button variant="outline">Secondary Action</Button>
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app](https://facebook.github.io/create-react-app/docs/making-a-progressive-web-app)
+### Card
+```jsx
+<Card title="Card Title" action={<Button>Action</Button>}>
+  Content here
+</Card>
+```
 
-### Advanced Configuration
+### Badge
+```jsx
+<Badge variant="success">Completed</Badge>
+<Badge variant="warning">In Progress</Badge>
+```
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/advanced-configuration](https://facebook.github.io/create-react-app/docs/advanced-configuration)
+### Table
+```jsx
+<Table 
+  columns={[
+    { header: 'Name', accessor: 'name' },
+    { header: 'Value', accessor: 'value' }
+  ]}
+  data={data}
+/>
+```
 
-### Deployment
+## Future Enhancements
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/deployment](https://facebook.github.io/create-react-app/docs/deployment)
+- Backend API integration
+- Real-time collaboration
+- Advanced analytics dashboard
+- Mobile responsive design
+- Multi-language support
+- Role-based access control
 
-### `npm run build` fails to minify
+## License
 
-This section has moved here: [https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify](https://facebook.github.io/create-react-app/docs/troubleshooting#npm-run-build-fails-to-minify)
+Proprietary - Enterprise Construction Intelligence Platform
+
+---
+
+Built with ❤️ for the construction industry
