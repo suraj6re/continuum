@@ -117,9 +117,13 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
         
     except Exception as e:
         # Store error but don't fail upload
+        import traceback
+        error_detail = f"{str(e)}\n{traceback.format_exc()}"
+        print(f"Processing error: {error_detail}")
         drawing.processed = False
         drawing.processing_error = str(e)
         drawing.status = "error"
         await drawing.save()
+        raise HTTPException(status_code=500, detail=f"Processing failed: {str(e)}")
     
     return drawing

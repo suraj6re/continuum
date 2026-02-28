@@ -29,8 +29,8 @@ def identify_title_block(text_entities: List[Dict], labels: np.ndarray) -> Optio
         return None
     
     # Get unique cluster IDs (exclude noise -1)
-    unique_labels = set(labels)
-    cluster_ids = [int(l) for l in unique_labels if l != -1]
+    unique_labels = set(labels.tolist())
+    cluster_ids = [l for l in unique_labels if l != -1]
     
     if len(cluster_ids) == 0:
         return None

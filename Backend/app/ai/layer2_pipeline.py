@@ -64,6 +64,6 @@ def run_layer2_pipeline(layer1_output: Dict) -> Dict:
     # Add processing metadata
     layer2_output['status'] = 'success'
     layer2_output['clustering_params'] = params
-    layer2_output['total_clusters'] = len(set(labels)) - (1 if -1 in labels else 0)
+    layer2_output['total_clusters'] = int(len(set(labels.tolist())) - (1 if -1 in labels.tolist() else 0))
     
     return layer2_output

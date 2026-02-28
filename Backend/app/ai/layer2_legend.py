@@ -21,7 +21,7 @@ def detect_legend_region(text_entities: List[Dict], labels: np.ndarray,
         return None
     
     # Get unique cluster IDs (exclude noise -1)
-    unique_labels = set(labels)
+    unique_labels = set(labels.tolist())
     cluster_ids = [int(l) for l in unique_labels if l != -1]
     
     if len(cluster_ids) == 0:
