@@ -1,7 +1,7 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from app.database import connect_db, close_db
-from app.routes import upload
+from app.routes import upload, analysis
 
 app = FastAPI(title="StructIQ API", version="1.0.0")
 
@@ -26,6 +26,7 @@ async def shutdown_event():
 
 # Include routers
 app.include_router(upload.router)
+app.include_router(analysis.router)
 
 @app.get("/")
 async def root():
