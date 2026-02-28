@@ -1,0 +1,92 @@
+{
+  "step1_sheet_border": {
+    "min_x": 0.0,
+    "max_x": 297.0,
+    "min_y": 0.0,
+    "max_y": 210.0
+  },
+  "step1_total_lines": 8,
+  "step1_extents": {
+    "min_x": 0.0,
+    "min_y": 0.0,
+    "max_x": 297.0,
+    "max_y": 210.0
+  },
+  "step2_clusters": 1,
+  "step2_params": {
+    "eps": 30.0,
+    "min_samples": 4
+  },
+  "step2_labels": [
+    0,
+    0,
+    0,
+    0,
+    -1,
+    -1
+  ],
+  "title_block": {
+    "cluster_id": 0,
+    "score": 9,
+    "text_count": 4,
+    "bounding_box": {
+      "min_x": 10.0,
+      "min_y": 10.0,
+      "max_x": 10.0,
+      "max_y": 40.0
+    },
+    "metadata": {
+      "text_0": "Title Block",
+      "drawing no": "001",
+      "scale": "1:100",
+      "date": "2024"
+    },
+    "all_clusters": [
+      {
+        "cluster_id": 0,
+        "score": 9,
+        "text_count": 4,
+        "texts": [
+          {
+            "text": "Title Block",
+            "position": [
+              10.0,
+              10.0
+            ],
+            "layer": "0"
+          },
+          {
+            "text": "Drawing No: 001",
+            "position": [
+              10.0,
+              20.0
+            ],
+            "layer": "0"
+          },
+          {
+            "text": "Scale: 1:100",
+            "position": [
+              10.0,
+              30.0
+            ],
+            "layer": "0"
+          },
+          {
+            "text": "Date: 2024",
+            "position": [
+              10.0,
+              40.0
+            ],
+            "layer": "0"
+          }
+        ],
+        "indices": [
+          0,
+          1,
+          2,
+          3
+        ]
+      }
+    ]
+  }
+}

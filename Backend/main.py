@@ -22,7 +22,7 @@ app.add_middleware(
 async def startup_event():
     await connect_db()
     # Ensure uploads directory exists
-    upload_dir = os.getenv("UPLOAD_DIR", "uploads")
+    upload_dir = os.getenv("UPLOAD_DIR", "../uploads")
     if not os.path.exists(upload_dir):
         os.makedirs(upload_dir)
 
@@ -36,7 +36,7 @@ app.include_router(upload.router)
 app.include_router(analysis.router)
 
 # Mount uploads directory as static files - AFTER routes
-upload_dir = os.getenv("UPLOAD_DIR", "uploads")
+upload_dir = os.getenv("UPLOAD_DIR", "../uploads")
 app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
 
 @app.get("/")
