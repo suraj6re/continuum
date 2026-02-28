@@ -15,7 +15,12 @@ numpy==1.26.3
 ezdxf==1.1.4
 PyMuPDF==1.23.8
 lxml==5.1.0
-shapely==2.0.2
-scikit-learn==1.4.0
-networkx==3.2.1
-scipy==1.12.0
+
+# CNN Fallback Module Dependencies
+torch>=1.9.0
+torchvision>=0.10.0
+scikit-learn>=0.24.0
+matplotlib>=3.3.0
+seaborn>=0.11.0
+tqdm>=4.60.0
+scipy>=1.6.0
