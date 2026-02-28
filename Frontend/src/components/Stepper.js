@@ -1,13 +1,17 @@
-export default function Stepper({ steps, currentStep }) {
+export default function Stepper({ steps, currentStep, onStepClick }) {
   return (
     <div className="flex items-center justify-between">
       {steps.map((step, idx) => (
         <div key={idx} className="flex items-center flex-1">
           <div className="flex flex-col items-center">
-            <div className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm
+            <div 
+              className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all
               ${idx < currentStep ? 'bg-emerald-600 text-white' : 
                 idx === currentStep ? 'bg-brand-orange text-white' : 
-                'bg-bg-section text-text-muted border-2 border-border-warm'}`}>
+                'bg-bg-section text-text-muted border-2 border-border-warm'}
+              ${idx === 0 && onStepClick ? 'cursor-pointer hover:ring-2 hover:ring-brand-orange hover:scale-110' : ''}`}
+              onClick={() => idx === 0 && onStepClick && onStepClick()}
+            >
               {idx < currentStep ? '✓' : idx + 1}
             </div>
             <span className={`mt-2 text-xs font-medium ${idx === currentStep ? 'text-brand-orange' : 'text-text-secondary'}`}>

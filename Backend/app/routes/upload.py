@@ -1,7 +1,9 @@
 from fastapi import APIRouter, UploadFile, File, HTTPException
+from fastapi.responses import FileResponse
 from app.services.upload_service import save_upload_file
 from app.models.drawing import Drawing
 from typing import List
+import os
 
 router = APIRouter(prefix="/api/upload", tags=["upload"])
 
@@ -15,7 +17,8 @@ async def upload_drawing(file: UploadFile = File(...)):
             "message": "File uploaded successfully",
             "data": {
                 "id": str(drawing.id),
-                "filename": drawing.original_filename,
+                "filename": drawing.filename,
+                "original_filename": drawing.original_filename,
                 "file_type": drawing.file_type,
                 "file_size": drawing.file_size,
                 "status": drawing.status,
@@ -36,7 +39,8 @@ async def get_all_drawings():
         "data": [
             {
                 "id": str(d.id),
-                "filename": d.original_filename,
+                "filename": d.filename,
+                "original_filename": d.original_filename,
                 "file_type": d.file_type,
                 "file_size": d.file_size,
                 "status": d.status,
@@ -57,7 +61,8 @@ async def get_drawing(drawing_id: str):
         "success": True,
         "data": {
             "id": str(drawing.id),
-            "filename": drawing.original_filename,
+            "filename": drawing.filename,
+            "original_filename": drawing.original_filename,
             "file_type": drawing.file_type,
             "file_size": drawing.file_size,
             "status": drawing.status,
