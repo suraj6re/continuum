@@ -28,7 +28,7 @@ function App() {
 
   const handleLogin = () => {
     setCurrentView('app');
-    setActiveItem('overview');
+    setActiveItem('upload');
   };
 
   if (currentView === 'landing') {
