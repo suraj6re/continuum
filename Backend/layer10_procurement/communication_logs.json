@@ -1,0 +1,122 @@
+[
+    {
+        "log_id": "LOG-20260301074006547944",
+        "timestamp": "2026-03-01 07:40:06",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "RFQ",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": 64.0
+    },
+    {
+        "log_id": "LOG-20260301074006548911",
+        "timestamp": "2026-03-01 07:40:06",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "WhatsApp",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": null
+    },
+    {
+        "log_id": "LOG-20260301074006582980",
+        "timestamp": "2026-03-01 07:40:06",
+        "supplier": "Concrete Plus",
+        "material": "Reinforced Cement Concrete M25",
+        "quantity": 50,
+        "unit": "m3",
+        "mode": "Email",
+        "status": "Drafted",
+        "project_name": "Commercial Complex B",
+        "expected_rate": 7150.0
+    },
+    {
+        "log_id": "LOG-20260301074006614293",
+        "timestamp": "2026-03-01 07:40:06",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "RFQ",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": 64.0
+    },
+    {
+        "log_id": "LOG-20260301074006615303",
+        "timestamp": "2026-03-01 07:40:06",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "WhatsApp",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": 64.0
+    },
+    {
+        "log_id": "LOG-20260301074412204800",
+        "timestamp": "2026-03-01 07:44:12",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "RFQ",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": 64.0
+    },
+    {
+        "log_id": "LOG-20260301074412250408",
+        "timestamp": "2026-03-01 07:44:12",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "WhatsApp",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": null
+    },
+    {
+        "log_id": "LOG-20260301074412276295",
+        "timestamp": "2026-03-01 07:44:12",
+        "supplier": "Concrete Plus",
+        "material": "Reinforced Cement Concrete M25",
+        "quantity": 50,
+        "unit": "m3",
+        "mode": "Email",
+        "status": "Drafted",
+        "project_name": "Commercial Complex B",
+        "expected_rate": 7150.0
+    },
+    {
+        "log_id": "LOG-20260301074412305974",
+        "timestamp": "2026-03-01 07:44:12",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "RFQ",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": 64.0
+    },
+    {
+        "log_id": "LOG-20260301074412306982",
+        "timestamp": "2026-03-01 07:44:12",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "WhatsApp",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": 64.0
+    }
+]
