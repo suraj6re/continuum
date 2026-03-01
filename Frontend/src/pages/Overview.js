@@ -4,76 +4,79 @@ import Badge from '../components/Badge';
 import { getAllDrawings } from '../services/api';
 
 export default function Overview() {
-  const [drawings, setDrawings] = useState([]);
+  const [currentDrawing, setCurrentDrawing] = useState(null);
   const [loading, setLoading] = useState(true);
   const [stats, setStats] = useState([
-    { label: 'Active Projects', value: '0', change: '--'},
-    { label: 'Total Drawings', value: '0', change: '--'},
-    { label: 'Processed Files', value: '0', change: '--'},
-    { label: 'Avg Confidence', value: '--', change: '--'},
+    { label: 'File Size', value: '--', change: '--'},
+    { label: 'File Type', value: '--', change: '--'},
+    { label: 'Processing Status', value: '--', change: '--'},
+    { label: 'Confidence', value: '--', change: '--'},
   ]);
 
   useEffect(() => {
-    loadDrawings();
+    loadCurrentDrawing();
   }, []);
 
-  const loadDrawings = async () => {
+  const loadCurrentDrawing = async () => {
     try {
       const response = await getAllDrawings();
       const drawingsData = response.data || [];
-      setDrawings(drawingsData);
       
-      // Calculate real stats
-      const totalDrawings = drawingsData.length;
-      const processedDrawings = drawingsData.filter(d => d.processed).length;
-      const processingDrawings = drawingsData.filter(d => d.status === 'processing').length;
-      
-      // Calculate average confidence from Layer 5 data
-      let totalConfidence = 0;
-      let confidenceCount = 0;
-      drawingsData.forEach(drawing => {
-        if (drawing.layer5_data && drawing.layer5_data.summary && drawing.layer5_data.summary.avg_confidence) {
-          totalConfidence += drawing.layer5_data.summary.avg_confidence;
-          confidenceCount++;
-        }
-      });
-      const avgConfidence = confidenceCount > 0 ? (totalConfidence / confidenceCount).toFixed(0) : '--';
-      
-      setStats([
-        { label: 'Active Projects', value: processingDrawings.toString(), change: '--'},
-        { label: 'Total Drawings', value: totalDrawings.toString(), change: '--'},
-        { label: 'Processed Files', value: processedDrawings.toString(), change: `${totalDrawings > 0 ? ((processedDrawings/totalDrawings)*100).toFixed(0) : 0}%`},
-        { label: 'Avg Confidence', value: avgConfidence !== '--' ? `${avgConfidence}%` : '--', change: '--'},
-      ]);
+      // Get the most recently uploaded file (current file)
+      if (drawingsData.length > 0) {
+        const latestDrawing = drawingsData[0]; // Assuming API returns sorted by upload date desc
+        setCurrentDrawing(latestDrawing);
+        
+        // Calculate stats for current file only
+        const fileSize = (latestDrawing.file_size / 1024 / 1024).toFixed(2) + ' MB';
+        const fileType = latestDrawing.file_type || 'Unknown';
+        const status = latestDrawing.status === 'processed' ? 'Completed' : 
+                      latestDrawing.status === 'processing' ? 'Processing' : 'Error';
+        
+        // Get confidence from Layer 5 data
+        const confidence = latestDrawing.layer5_data?.summary?.avg_confidence 
+          ? Math.round(latestDrawing.layer5_data.summary.avg_confidence * 100) + '%'
+          : '--';
+        
+        setStats([
+          { label: 'File Size', value: fileSize, change: '--'},
+          { label: 'File Type', value: fileType, change: '--'},
+          { label: 'Processing Status', value: status, change: '--'},
+          { label: 'Confidence', value: confidence, change: '--'},
+        ]);
+      }
       
       setLoading(false);
     } catch (err) {
-      console.error('Failed to load drawings:', err);
+      console.error('Failed to load current drawing:', err);
       setLoading(false);
     }
   };
 
-  const recentProjects = drawings.slice(0, 5).map(drawing => ({
-    name: drawing.original_filename || drawing.filename,
-    status: drawing.status === 'processed' ? 'Completed' : drawing.status === 'processing' ? 'In Progress' : 'Error',
-    confidence: drawing.layer5_data?.summary?.avg_confidence ? Math.round(drawing.layer5_data.summary.avg_confidence * 100) : '--',
-    date: new Date(drawing.uploaded_at).toLocaleDateString(),
-    id: drawing.id
-  }));
+  const fileDetails = currentDrawing ? [
+    { label: 'Filename', value: currentDrawing.original_filename || currentDrawing.filename },
+    { label: 'Uploaded', value: new Date(currentDrawing.uploaded_at).toLocaleString() },
+    { label: 'Pipeline Type', value: currentDrawing.pipeline_type || '--' },
+    { label: 'Entity Count', value: currentDrawing.entity_count || '--' },
+    { label: 'Layer 2 Processed', value: currentDrawing.layer2_processed ? 'Yes' : 'No' },
+    { label: 'Layer 3 Processed', value: currentDrawing.layer3_processed ? 'Yes' : 'No' },
+    { label: 'Layer 4 Processed', value: currentDrawing.layer4_processed ? 'Yes' : 'No' },
+    { label: 'Layer 5 Processed', value: currentDrawing.layer5_processed ? 'Yes' : 'No' },
+  ] : [];
 
   return (
     <div>
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-brand-charcoal mb-2">Overview</h1>
-        <p className="text-text-secondary">Your construction intelligence dashboard</p>
+        <p className="text-text-secondary">Current file analysis dashboard</p>
       </div>
 
       {loading ? (
         <div className="text-center py-12">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto"></div>
-          <p className="text-text-secondary mt-4">Loading dashboard...</p>
+          <p className="text-text-secondary mt-4">Loading current file...</p>
         </div>
-      ) : (
+      ) : currentDrawing ? (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, idx) => (
@@ -82,46 +85,56 @@ export default function Overview() {
                   <div>
                     <p className="text-text-secondary text-sm mb-1">{stat.label}</p>
                     <p className="text-3xl font-bold text-brand-charcoal">{stat.value}</p>
-                    <p className="text-emerald-600 text-sm mt-1">{stat.change}</p>
                   </div>
-                  <div className="text-3xl">{stat.icon}</div>
                 </div>
               </Card>
             ))}
           </div>
 
-          {recentProjects.length > 0 ? (
-            <Card title="Recent Drawings">
-              <div className="space-y-4">
-                {recentProjects.map((project, idx) => (
-                  <div key={idx} className="flex items-center justify-between p-4 bg-bg-section rounded-lg">
-                    <div className="flex-1">
-                      <h4 className="font-semibold text-brand-charcoal">{project.name}</h4>
-                      <p className="text-sm text-text-secondary">{project.date}</p>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <Badge variant={project.status === 'Completed' ? 'success' : project.status === 'In Progress' ? 'warning' : 'error'}>
-                        {project.status}
-                      </Badge>
-                      <div className="text-right">
-                        <p className="text-sm text-text-secondary">Confidence</p>
-                        <p className="font-semibold text-brand-orange">{project.confidence !== '--' ? `${project.confidence}%` : '--'}</p>
-                      </div>
-                    </div>
-                  </div>
-                ))}
-              </div>
-            </Card>
-          ) : (
-            <Card title="Recent Drawings">
-              <div className="text-center py-12">
-                <div className="text-6xl mb-4">📁</div>
-                <h3 className="text-xl font-semibold text-brand-charcoal mb-2">No Drawings Yet</h3>
-                <p className="text-text-secondary">Upload your first drawing to get started</p>
+          <Card title="Current File Details">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+              {fileDetails.map((detail, idx) => (
+                <div key={idx} className="flex justify-between items-center p-3 bg-bg-section rounded-lg">
+                  <span className="text-text-secondary text-sm">{detail.label}</span>
+                  <span className="font-semibold text-brand-charcoal">{detail.value}</span>
+                </div>
+              ))}
+            </div>
+          </Card>
+
+          {currentDrawing.layer5_data && (
+            <Card title="Layer 5 Summary" className="mt-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                <div className="p-4 bg-bg-section rounded-lg">
+                  <p className="text-text-secondary text-sm mb-1">Total Elements</p>
+                  <p className="text-2xl font-bold text-brand-charcoal">
+                    {currentDrawing.layer5_data.summary?.total_elements || 0}
+                  </p>
+                </div>
+                <div className="p-4 bg-bg-section rounded-lg">
+                  <p className="text-text-secondary text-sm mb-1">Total Relationships</p>
+                  <p className="text-2xl font-bold text-brand-charcoal">
+                    {currentDrawing.layer5_data.summary?.total_relationships || 0}
+                  </p>
+                </div>
+                <div className="p-4 bg-bg-section rounded-lg">
+                  <p className="text-text-secondary text-sm mb-1">Validation Status</p>
+                  <Badge variant={currentDrawing.layer5_data.summary?.valid ? 'success' : 'error'}>
+                    {currentDrawing.layer5_data.summary?.valid ? 'Valid' : 'Invalid'}
+                  </Badge>
+                </div>
               </div>
             </Card>
           )}
         </>
+      ) : (
+        <Card>
+          <div className="text-center py-12">
+            <div className="text-6xl mb-4">📁</div>
+            <h3 className="text-xl font-semibold text-brand-charcoal mb-2">No File Uploaded</h3>
+            <p className="text-text-secondary">Upload a drawing to see its analysis</p>
+          </div>
+        </Card>
       )}
     </div>
   );
