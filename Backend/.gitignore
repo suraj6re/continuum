@@ -11,3 +11,9 @@ ENV/
 uploads/
 *.log
 .DS_Store
+
+# CNN Fallback - Generated Files
+cnn_dataset/
+cnn_fallback/validation/
+models/*.pth
+models/*.pt

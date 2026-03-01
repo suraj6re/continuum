@@ -36,7 +36,8 @@ app.include_router(upload.router)
 app.include_router(analysis.router)
 
 # Mount uploads directory as static files - AFTER routes
-upload_dir = os.getenv("UPLOAD_DIR", "../uploads")
+upload_dir = os.getenv("UPLOAD_DIR", "uploads")
+os.makedirs(upload_dir, exist_ok=True)  # Ensure directory exists
 app.mount("/uploads", StaticFiles(directory=upload_dir), name="uploads")
 
 @app.get("/")
