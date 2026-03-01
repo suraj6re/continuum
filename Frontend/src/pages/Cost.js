@@ -1,72 +1,206 @@
+import { useEffect, useState, useMemo } from 'react';
 import Card from '../components/Card';
-import Table from '../components/Table';
 import Button from '../components/Button';
+import CostSummaryCard from '../components/CostSummaryCard';
+import CostBreakdownTable from '../components/CostBreakdownTable';
+import CostDistributionChart from '../components/CostDistributionChart';
+import { useProjectStore } from '../hooks/useProjectStore';
+import { fetchCostData, exportCostToCSV, exportCostToJSON } from '../services/costService';
 
 export default function Cost() {
-  const costBreakdown = [
-    { item: 'Concrete Works', quantity: '245.5 m³', rate: 8500, amount: 2086750, uncertainty: '±5%' },
-    { item: 'Steel Reinforcement', quantity: '12450 kg', rate: 85, amount: 1058250, uncertainty: '±3%' },
-    { item: 'Brick Masonry', quantity: '1850 m²', rate: 450, amount: 832500, uncertainty: '±4%' },
-    { item: 'Plaster Work', quantity: '3200 m²', rate: 180, amount: 576000, uncertainty: '±6%' },
-    { item: 'Floor Tiles', quantity: '1450 m²', rate: 650, amount: 942500, uncertainty: '±4%' },
-  ];
+  const { 
+    currentProjectId, 
+    processingStatus, 
+    costSummary, 
+    costItems, 
+    pricingAdjustment,
+    updateCostData,
+    updatePricingAdjustment
+  } = useProjectStore();
+  
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(null);
 
-  const columns = [
-    { header: 'Item', accessor: 'item' },
-    { header: 'Quantity', accessor: 'quantity' },
-    { header: 'Rate (₹)', accessor: 'rate', render: (row) => `₹${row.rate.toLocaleString()}` },
-    { header: 'Amount (₹)', accessor: 'amount', render: (row) => `₹${row.amount.toLocaleString()}` },
-    { header: 'Uncertainty', accessor: 'uncertainty' },
-  ];
+  useEffect(() => {
+    if (processingStatus === 'complete' && currentProjectId && !costSummary) {
+      setLoading(true);
+      fetchCostData(currentProjectId)
+        .then(data => {
+          updateCostData(data);
+          setError(null);
+        })
+        .catch(err => {
+          console.error('Cost data error:', err);
+          setError(err.message);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  }, [processingStatus, currentProjectId, costSummary, updateCostData]);
 
-  const totalCost = costBreakdown.reduce((sum, item) => sum + item.amount, 0);
+  const adjustedCostItems = useMemo(() => {
+    if (!costItems.length) return [];
+    return costItems.map(item => ({
+      ...item,
+      unit_rate: item.unit_rate * pricingAdjustment,
+      material_cost: Math.round(item.material_cost * pricingAdjustment),
+      labor_cost: Math.round(item.labor_cost * pricingAdjustment),
+      equipment_cost: Math.round(item.equipment_cost * pricingAdjustment),
+      total_cost: Math.round(item.total_cost * pricingAdjustment)
+    }));
+  }, [costItems, pricingAdjustment]);
+
+  const adjustedCostSummary = useMemo(() => {
+    if (!costSummary) return null;
+    return {
+      material_cost: Math.round(costSummary.material_cost * pricingAdjustment),
+      labor_cost: Math.round(costSummary.labor_cost * pricingAdjustment),
+      equipment_cost: Math.round(costSummary.equipment_cost * pricingAdjustment),
+      total_cost: Math.round(costSummary.total_cost * pricingAdjustment)
+    };
+  }, [costSummary, pricingAdjustment]);
+
+  const handleExportCSV = () => {
+    exportCostToCSV(adjustedCostItems, adjustedCostSummary, pricingAdjustment);
+  };
+
+  const handleExportJSON = () => {
+    exportCostToJSON(adjustedCostItems, adjustedCostSummary, pricingAdjustment);
+  };
+
+  const handleRetry = () => {
+    if (currentProjectId) {
+      setLoading(true);
+      setError(null);
+      fetchCostData(currentProjectId)
+        .then(data => {
+          updateCostData(data);
+          setError(null);
+        })
+        .catch(err => {
+          console.error('Cost data error:', err);
+          setError(err.message);
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+    }
+  };
+
+  if (processingStatus !== 'complete') {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <p className="text-xl text-gray-600 mb-2">Complete QTO extraction to unlock cost intelligence.</p>
+          <p className="text-sm text-gray-500">Upload and process drawings first.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <p className="text-xl text-red-600 mb-4">Failed to load cost data</p>
+          <p className="text-sm text-gray-500 mb-4">{error}</p>
+          <Button onClick={handleRetry}>Retry</Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-brand-charcoal mb-2">Cost Intelligence</h1>
-          <p className="text-text-secondary">AI-powered cost estimation with uncertainty analysis</p>
+          <p className="text-text-secondary">
+            {loading ? 'Loading cost data...' : 'AI-powered cost estimation with uncertainty analysis'}
+          </p>
         </div>
-        <Button>Export Cost Report</Button>
+        <div className="flex space-x-2">
+          <Button onClick={handleExportCSV} disabled={loading || !adjustedCostItems.length}>
+            Export CSV
+          </Button>
+          <Button onClick={handleExportJSON} variant="outline" disabled={loading || !adjustedCostItems.length}>
+            Export JSON
+          </Button>
+        </div>
+      </div>
+
+      <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
+        <CostSummaryCard 
+          title="Material Cost" 
+          value={adjustedCostSummary?.material_cost || 0}
+          loading={loading}
+        />
+        <CostSummaryCard 
+          title="Labor Cost" 
+          value={adjustedCostSummary?.labor_cost || 0}
+          loading={loading}
+        />
+        <CostSummaryCard 
+          title="Equipment Cost" 
+          value={adjustedCostSummary?.equipment_cost || 0}
+          loading={loading}
+        />
+        <CostSummaryCard 
+          title="Total Cost" 
+          value={adjustedCostSummary?.total_cost || 0}
+          loading={loading}
+        />
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card className="md:col-span-2">
-          <div className="flex items-center justify-between">
+        <Card title="Cost Distribution" className="md:col-span-2">
+          <CostDistributionChart costSummary={adjustedCostSummary} loading={loading} />
+        </Card>
+
+        <Card title="Market Adjustment">
+          <div className="space-y-4">
             <div>
-              <p className="text-text-secondary text-sm mb-2">Total Project Cost</p>
-              <p className="text-5xl font-bold text-brand-charcoal">₹{(totalCost / 100000).toFixed(2)}L</p>
-              <p className="text-text-secondary text-sm mt-2">Base estimate: ₹{((totalCost * 0.95) / 100000).toFixed(2)}L - ₹{((totalCost * 1.05) / 100000).toFixed(2)}L</p>
-            </div>
-            <div className="text-right">
-              <div className="bg-emerald-100 text-emerald-700 px-4 py-2 rounded-lg">
-                <p className="text-xs font-medium">Confidence Band</p>
-                <p className="text-2xl font-bold">±4.5%</p>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Adjustment Factor
+              </label>
+              <input
+                type="range"
+                min="0.8"
+                max="1.5"
+                step="0.01"
+                value={pricingAdjustment}
+                onChange={(e) => updatePricingAdjustment(parseFloat(e.target.value))}
+                className="w-full"
+                disabled={loading}
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>0.8x</span>
+                <span className="font-bold text-gray-900">{pricingAdjustment.toFixed(2)}x</span>
+                <span>1.5x</span>
               </div>
+            </div>
+            <div className="pt-4 border-t border-gray-200">
+              <p className="text-sm text-gray-600 mb-2">Impact on Total Cost</p>
+              <p className="text-2xl font-bold text-brand-orange">
+                {pricingAdjustment > 1 ? '+' : ''}
+                {((pricingAdjustment - 1) * 100).toFixed(0)}%
+              </p>
             </div>
           </div>
         </Card>
-
-        <Card>
-          <p className="text-text-secondary text-sm mb-2">Cost per Sq.Ft</p>
-          <p className="text-3xl font-bold text-brand-charcoal">₹1,245</p>
-          <p className="text-emerald-600 text-sm mt-2">Within market range</p>
-        </Card>
       </div>
 
-      <Card title="Cost Breakdown" action={
-        <select className="px-3 py-1 border border-border-warm rounded-lg text-sm">
-          <option>All Items</option>
-          <option>Structural</option>
-          <option>Finishing</option>
-        </select>
-      }>
-        <Table columns={columns} data={costBreakdown} />
-        <div className="mt-6 pt-6 border-t border-border-warm flex justify-between items-center">
-          <p className="text-lg font-semibold text-brand-charcoal">Total Estimated Cost</p>
-          <p className="text-2xl font-bold text-brand-orange">₹{(totalCost / 100000).toFixed(2)}L</p>
-        </div>
+      <Card title="Cost Breakdown">
+        <CostBreakdownTable items={adjustedCostItems} loading={loading} />
+        {adjustedCostSummary && (
+          <div className="mt-6 pt-6 border-t border-gray-200 flex justify-between items-center">
+            <p className="text-lg font-semibold text-gray-900">Total Estimated Cost</p>
+            <p className="text-2xl font-bold text-brand-orange">
+              ₹{adjustedCostSummary.total_cost.toLocaleString('en-IN')}
+            </p>
+          </div>
+        )}
       </Card>
     </div>
   );

@@ -7,12 +7,24 @@ export const ProjectProvider = ({ children }) => {
   const [qtoSummary, setQtoSummary] = useState(null);
   const [qtoElements, setQtoElements] = useState([]);
   const [processingStatus, setProcessingStatus] = useState('idle');
+  const [costSummary, setCostSummary] = useState(null);
+  const [costItems, setCostItems] = useState([]);
+  const [pricingAdjustment, setPricingAdjustment] = useState(1.0);
 
   const updateQTOData = (data) => {
     setCurrentProjectId(data.project_id);
     setQtoSummary(data.summary);
     setQtoElements(data.elements || []);
     setProcessingStatus('complete');
+  };
+
+  const updateCostData = (data) => {
+    setCostSummary(data.cost_summary);
+    setCostItems(data.cost_items || []);
+  };
+
+  const updatePricingAdjustment = (factor) => {
+    setPricingAdjustment(factor);
   };
 
   const startProcessing = () => {
@@ -28,6 +40,9 @@ export const ProjectProvider = ({ children }) => {
     setQtoSummary(null);
     setQtoElements([]);
     setProcessingStatus('idle');
+    setCostSummary(null);
+    setCostItems([]);
+    setPricingAdjustment(1.0);
   };
 
   return (
@@ -36,7 +51,12 @@ export const ProjectProvider = ({ children }) => {
       qtoSummary,
       qtoElements,
       processingStatus,
+      costSummary,
+      costItems,
+      pricingAdjustment,
       updateQTOData,
+      updateCostData,
+      updatePricingAdjustment,
       startProcessing,
       setError,
       reset
