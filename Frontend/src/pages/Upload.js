@@ -194,6 +194,8 @@ export default function Upload() {
       setActiveStep('extract');
     } else if (step === 'parse' && layer3Data) {
       setActiveStep('parse');
+    } else if (step === 'qto' && layer4Data) {
+      setActiveStep('qto');
     } else if (step === 'validate' && layer5Data) {
       setActiveStep('validate');
     }
@@ -325,6 +327,12 @@ export default function Upload() {
       {activeStep === 'parse' && layer3Data && (
         <Card>
           <Layer3Output data={layer3Data} />
+        </Card>
+      )}
+
+      {activeStep === 'qto' && layer4Data && (
+        <Card>
+          <Layer4Output data={layer4Data} />
         </Card>
       )}
 

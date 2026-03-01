@@ -5,7 +5,8 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
     'Hybrid Normalization': 'normalize',
     'Legend Intelligence': 'extract',
     'Element Extraction': 'parse',
-    'Element Graph Model': 'validate'
+    'Element Graph Model': 'qto',
+    'Deterministic QTO': 'validate'
   };
 
   return (
