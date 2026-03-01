@@ -198,6 +198,8 @@ export default function Upload() {
       setActiveStep('qto');
     } else if (step === 'validate' && layer5Data) {
       setActiveStep('validate');
+    } else if (step === 'confidence' && layer6Data) {
+      setActiveStep('confidence');
     }
   };
 
@@ -339,6 +341,12 @@ export default function Upload() {
       {activeStep === 'validate' && layer5Data && (
         <Card>
           <Layer5Output data={layer5Data} />
+        </Card>
+      )}
+
+      {activeStep === 'confidence' && layer6Data && (
+        <Card>
+          <Layer6Output data={layer6Data} />
         </Card>
       )}
 

@@ -6,7 +6,8 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
     'Legend Intelligence': 'extract',
     'Element Extraction': 'parse',
     'Element Graph Model': 'qto',
-    'Deterministic QTO': 'validate'
+    'Deterministic QTO': 'validate',
+    'Validation & Confidence': 'confidence'
   };
 
   return (
