@@ -36,7 +36,7 @@ export default function Upload() {
   const [layer4Data, setLayer4Data] = useState(null);
   const [layer5Data, setLayer5Data] = useState(null);
 
-  const steps = ['Upload', 'Hybrid Normalization', 'Legend Intelligence', 'Element Extraction', 'Material & Dimension Parsing', 'Element Graph Model', 'Deterministic QTO', 'Validation & Confidence', 'Semantic Cost Alignment', 'Cost & Risk Engine', 'Budget Optimization', 'Supplier & Procurement', 'Explainable Scheduling', 'Human Review', 'Dashboard & Compliance'];
+  const steps = ['Upload', 'Hybrid Normalization', 'Legend Intelligence', 'Element Extraction', 'Element Graph Model', 'Deterministic QTO', 'Validation & Confidence', 'Semantic Cost Alignment', 'Cost & Risk Engine', 'Budget Optimization', 'Supplier & Procurement', 'Explainable Scheduling', 'Human Review', 'Dashboard & Compliance'];
 
   useEffect(() => {
     loadUploadedFiles();
@@ -180,10 +180,10 @@ export default function Upload() {
       setActiveStep('extract');
     } else if (step === 'parse' && layer3Data) {
       setActiveStep('parse');
-    } else if (step === 'qto' && layer4Data) {
-      setActiveStep('qto');
-    } else if (step === 'validate' && layer5Data) {
+    } else if (step === 'validate' && layer4Data) {
       setActiveStep('validate');
+    } else if (step === 'qto' && layer5Data) {
+      setActiveStep('qto');
     }
   };
 
@@ -316,13 +316,13 @@ export default function Upload() {
         </Card>
       )}
 
-      {activeStep === 'qto' && layer4Data && (
+      {activeStep === 'validate' && layer4Data && (
         <Card>
           <Layer4Output data={layer4Data} />
         </Card>
       )}
 
-      {activeStep === 'validate' && layer5Data && (
+      {activeStep === 'qto' && layer5Data && (
         <Card>
           <Layer5Output data={layer5Data} />
         </Card>
