@@ -209,10 +209,12 @@ export default function Upload() {
       setActiveStep('extract');
     } else if (step === 'parse' && layer3Data) {
       setActiveStep('parse');
-    } else if (step === 'validate' && layer4Data) {
+    } else if (step === 'qto' && layer4Data) {
+      setActiveStep('qto');
+    } else if (step === 'validate' && layer5Data) {
       setActiveStep('validate');
-    } else if (step === 'deterministic' && layer6Data) {
-      setActiveStep('deterministic');
+    } else if (step === 'confidence' && layer6Data) {
+      setActiveStep('confidence');
     }
   };
 
@@ -345,19 +347,19 @@ export default function Upload() {
         </Card>
       )}
 
-      {activeStep === 'validate' && layer4Data && (
+      {activeStep === 'qto' && layer4Data && (
         <Card>
           <Layer4Output data={layer4Data} />
         </Card>
       )}
 
-      {activeStep === 'qto' && layer5Data && (
+      {activeStep === 'validate' && layer5Data && (
         <Card>
           <Layer5Output data={layer5Data} />
         </Card>
       )}
 
-      {activeStep === 'deterministic' && layer6Data && (
+      {activeStep === 'confidence' && layer6Data && (
         <Card>
           <Layer6Output data={layer6Data} />
         </Card>
