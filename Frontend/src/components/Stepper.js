@@ -10,9 +10,9 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
   };
 
   return (
-    <div className="flex items-center justify-between overflow-x-auto">
+    <div className="flex items-start justify-between overflow-x-auto">
       {steps.map((step, idx) => (
-        <div key={idx} className="flex items-center flex-shrink-0">
+        <div key={idx} className="flex items-start flex-shrink-0">
           <div className="flex flex-col items-center">
             <div 
               className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all
@@ -30,12 +30,12 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
             >
               {idx < currentStep ? '✓' : idx + 1}
             </div>
-            <span className={`mt-2 text-xs font-medium text-center max-w-[80px] ${activeStep === step.toLowerCase() ? 'text-brand-orange' : idx === currentStep ? 'text-brand-orange' : 'text-text-secondary'}`}>
+            <span className={`mt-2 text-xs font-medium text-center w-20 min-h-[32px] leading-tight ${activeStep === step.toLowerCase() ? 'text-brand-orange' : idx === currentStep ? 'text-brand-orange' : 'text-text-secondary'}`}>
               {step}
             </span>
           </div>
           {idx < steps.length - 1 && (
-            <div className={`flex-1 h-0.5 mx-2 min-w-[20px] ${idx < currentStep ? 'bg-emerald-600' : 'bg-border-warm'}`} />
+            <div className={`h-0.5 mx-2 min-w-[20px] flex-1 mt-5 ${idx < currentStep ? 'bg-emerald-600' : 'bg-border-warm'}`} />
           )}
         </div>
       ))}
