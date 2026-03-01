@@ -38,11 +38,28 @@ export default function Overview() {
           ? Math.round(latestDrawing.layer5_data.summary.avg_confidence * 100) + '%'
           : '--';
         
+        // Calculate total entity count (sum of all entity types)
+        let totalEntities = 0;
+        if (latestDrawing.entity_count && typeof latestDrawing.entity_count === 'object') {
+          totalEntities = Object.values(latestDrawing.entity_count).reduce((sum, count) => sum + (count || 0), 0);
+        } else if (typeof latestDrawing.entity_count === 'number') {
+          totalEntities = latestDrawing.entity_count;
+        }
+        
         setStats([
           { label: 'File Size', value: fileSize, change: '--'},
           { label: 'File Type', value: fileType, change: '--'},
           { label: 'Processing Status', value: status, change: '--'},
           { label: 'Confidence', value: confidence, change: '--'},
+        ]);
+      } else {
+        // No files uploaded - reset to zeros
+        setCurrentDrawing(null);
+        setStats([
+          { label: 'File Size', value: '0 MB', change: '--'},
+          { label: 'File Type', value: '--', change: '--'},
+          { label: 'Processing Status', value: '--', change: '--'},
+          { label: 'Confidence', value: '--', change: '--'},
         ]);
       }
       
@@ -57,7 +74,17 @@ export default function Overview() {
     { label: 'Filename', value: currentDrawing.original_filename || currentDrawing.filename },
     { label: 'Uploaded', value: new Date(currentDrawing.uploaded_at).toLocaleString() },
     { label: 'Pipeline Type', value: currentDrawing.pipeline_type || '--' },
-    { label: 'Entity Count', value: currentDrawing.entity_count || '--' },
+    { 
+      label: 'Entity Count', 
+      value: (() => {
+        if (currentDrawing.entity_count && typeof currentDrawing.entity_count === 'object') {
+          return Object.values(currentDrawing.entity_count).reduce((sum, count) => sum + (count || 0), 0);
+        } else if (typeof currentDrawing.entity_count === 'number') {
+          return currentDrawing.entity_count;
+        }
+        return '--';
+      })()
+    },
     { label: 'Layer 2 Processed', value: currentDrawing.layer2_processed ? 'Yes' : 'No' },
     { label: 'Layer 3 Processed', value: currentDrawing.layer3_processed ? 'Yes' : 'No' },
     { label: 'Layer 4 Processed', value: currentDrawing.layer4_processed ? 'Yes' : 'No' },
@@ -76,7 +103,7 @@ export default function Overview() {
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-orange mx-auto"></div>
           <p className="text-text-secondary mt-4">Loading current file...</p>
         </div>
-      ) : currentDrawing ? (
+      ) : (
         <>
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
             {stats.map((stat, idx) => (
@@ -91,50 +118,54 @@ export default function Overview() {
             ))}
           </div>
 
-          <Card title="Current File Details">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-              {fileDetails.map((detail, idx) => (
-                <div key={idx} className="flex justify-between items-center p-3 bg-bg-section rounded-lg">
-                  <span className="text-text-secondary text-sm">{detail.label}</span>
-                  <span className="font-semibold text-brand-charcoal">{detail.value}</span>
+          {currentDrawing ? (
+            <>
+              <Card title="Current File Details">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {fileDetails.map((detail, idx) => (
+                    <div key={idx} className="flex justify-between items-center p-3 bg-bg-section rounded-lg">
+                      <span className="text-text-secondary text-sm">{detail.label}</span>
+                      <span className="font-semibold text-brand-charcoal">{detail.value}</span>
+                    </div>
+                  ))}
                 </div>
-              ))}
-            </div>
-          </Card>
+              </Card>
 
-          {currentDrawing.layer5_data && (
-            <Card title="Layer 5 Summary" className="mt-6">
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div className="p-4 bg-bg-section rounded-lg">
-                  <p className="text-text-secondary text-sm mb-1">Total Elements</p>
-                  <p className="text-2xl font-bold text-brand-charcoal">
-                    {currentDrawing.layer5_data.summary?.total_elements || 0}
-                  </p>
-                </div>
-                <div className="p-4 bg-bg-section rounded-lg">
-                  <p className="text-text-secondary text-sm mb-1">Total Relationships</p>
-                  <p className="text-2xl font-bold text-brand-charcoal">
-                    {currentDrawing.layer5_data.summary?.total_relationships || 0}
-                  </p>
-                </div>
-                <div className="p-4 bg-bg-section rounded-lg">
-                  <p className="text-text-secondary text-sm mb-1">Validation Status</p>
-                  <Badge variant={currentDrawing.layer5_data.summary?.valid ? 'success' : 'error'}>
-                    {currentDrawing.layer5_data.summary?.valid ? 'Valid' : 'Invalid'}
-                  </Badge>
-                </div>
+              {currentDrawing.layer5_data && (
+                <Card title="Layer 5 Summary" className="mt-6">
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div className="p-4 bg-bg-section rounded-lg">
+                      <p className="text-text-secondary text-sm mb-1">Total Elements</p>
+                      <p className="text-2xl font-bold text-brand-charcoal">
+                        {currentDrawing.layer5_data.summary?.total_elements || 0}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-bg-section rounded-lg">
+                      <p className="text-text-secondary text-sm mb-1">Total Relationships</p>
+                      <p className="text-2xl font-bold text-brand-charcoal">
+                        {currentDrawing.layer5_data.summary?.total_relationships || 0}
+                      </p>
+                    </div>
+                    <div className="p-4 bg-bg-section rounded-lg">
+                      <p className="text-text-secondary text-sm mb-1">Validation Status</p>
+                      <Badge variant={currentDrawing.layer5_data.summary?.valid ? 'success' : 'error'}>
+                        {currentDrawing.layer5_data.summary?.valid ? 'Valid' : 'Invalid'}
+                      </Badge>
+                    </div>
+                  </div>
+                </Card>
+              )}
+            </>
+          ) : (
+            <Card>
+              <div className="text-center py-12">
+                <div className="text-6xl mb-4">📁</div>
+                <h3 className="text-xl font-semibold text-brand-charcoal mb-2">No File Uploaded</h3>
+                <p className="text-text-secondary">Upload a drawing to see its analysis</p>
               </div>
             </Card>
           )}
         </>
-      ) : (
-        <Card>
-          <div className="text-center py-12">
-            <div className="text-6xl mb-4">📁</div>
-            <h3 className="text-xl font-semibold text-brand-charcoal mb-2">No File Uploaded</h3>
-            <p className="text-text-secondary">Upload a drawing to see its analysis</p>
-          </div>
-        </Card>
       )}
     </div>
   );
