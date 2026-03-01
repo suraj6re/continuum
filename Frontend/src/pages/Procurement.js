@@ -1,86 +1,168 @@
 import Card from '../components/Card';
 import Button from '../components/Button';
-import Badge from '../components/Badge';
+import ProcurementSummary from '../components/ProcurementSummary';
+import PurchaseOrderTable from '../components/PurchaseOrderTable';
+import PaymentMilestones from '../components/PaymentMilestones';
+import CashFlowChart from '../components/CashFlowChart';
+import DeliveryTracker from '../components/DeliveryTracker';
+import { useProjectStore } from '../hooks/useProjectStore';
+import { useProcurement } from '../hooks/useProcurement';
+import { useSchedule } from '../hooks/useSchedule';
+import { generateCashFlowData, exportProcurementReport } from '../services/procurementEngine';
 
 export default function Procurement() {
-  const rfqItems = [
-    { material: 'Concrete M30', quantity: '245.5 m³', supplier: 'ABC Concrete Ltd', status: 'Sent' },
-    { material: 'Steel TMT Bars', quantity: '12450 kg', supplier: 'Steel Masters Inc', status: 'Pending' },
-    { material: 'Brick Masonry', quantity: '1850 m²', supplier: 'BuildMart Supplies', status: 'Draft' },
-  ];
+  const { qtoElements, selectedSupplier, processingStatus } = useProjectStore();
+  const { tasks: scheduleTasks } = useSchedule(qtoElements, processingStatus);
+  const {
+    procurementItems,
+    paymentMilestones,
+    summary,
+    risk,
+    isFinalized,
+    updateOrderStatus,
+    updatePaymentStatus,
+    updateMilestoneStatus,
+    finalizeProcurement
+  } = useProcurement(qtoElements, selectedSupplier, scheduleTasks);
+
+  const handleExport = () => {
+    const procurementData = {
+      items: procurementItems,
+      summary
+    };
+    exportProcurementReport(procurementData, selectedSupplier, paymentMilestones, risk);
+  };
+
+  const cashFlowData = generateCashFlowData(procurementItems, paymentMilestones);
+
+  if (processingStatus !== 'complete') {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <p className="text-xl text-gray-600 mb-2">Complete QTO to enable procurement planning.</p>
+          <p className="text-sm text-gray-500">Upload and process drawings first.</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (!selectedSupplier) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <p className="text-xl text-gray-600 mb-4">Select a supplier to initiate procurement.</p>
+          <p className="text-sm text-gray-500 mb-6">Go to Suppliers page and select a supplier first.</p>
+          <Button onClick={() => window.location.hash = '#suppliers'}>
+            Go to Suppliers
+          </Button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div>
       <div className="mb-8 flex justify-between items-center">
         <div>
-          <h1 className="text-3xl font-bold text-brand-charcoal mb-2">Procurement</h1>
-          <p className="text-text-secondary">RFQ generation and supplier communication</p>
+          <h1 className="text-3xl font-bold text-brand-charcoal mb-2">Procurement Execution</h1>
+          <p className="text-text-secondary">
+            Supplier: <span className="font-semibold">{selectedSupplier.name}</span>
+          </p>
         </div>
-        <Button>Generate New RFQ</Button>
+        <div className="flex space-x-2">
+          <Button 
+            onClick={finalizeProcurement} 
+            disabled={isFinalized}
+          >
+            {isFinalized ? 'Plan Finalized' : 'Finalize Procurement Plan'}
+          </Button>
+          <Button onClick={handleExport} variant="outline">
+            Export Report
+          </Button>
+        </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-        <Card>
-          <p className="text-text-secondary text-sm mb-1">Active RFQs</p>
-          <p className="text-4xl font-bold text-brand-charcoal">8</p>
-        </Card>
-        <Card>
-          <p className="text-text-secondary text-sm mb-1">Pending Quotes</p>
-          <p className="text-4xl font-bold text-brand-orange">5</p>
-        </Card>
-        <Card>
-          <p className="text-text-secondary text-sm mb-1">Total Value</p>
-          <p className="text-4xl font-bold text-emerald-600">₹54.9L</p>
-        </Card>
+      <div className="grid grid-cols-1 md:grid-cols-6 gap-6 mb-8">
+        <ProcurementSummary
+          title="Total Procurement Value"
+          value={`₹${(summary.total_value / 100000).toFixed(2)}L`}
+          color="blue"
+        />
+        <ProcurementSummary
+          title="Purchase Items"
+          value={summary.total_items}
+          color="gray"
+        />
+        <ProcurementSummary
+          title="Pending Orders"
+          value={summary.pending_orders}
+          color="orange"
+        />
+        <ProcurementSummary
+          title="Delivered Orders"
+          value={summary.delivered_orders}
+          color="green"
+        />
+        <ProcurementSummary
+          title="Payment Due"
+          value={`₹${(summary.payment_due / 100000).toFixed(2)}L`}
+          color="red"
+        />
+        <ProcurementSummary
+          title="Supplier Risk"
+          value={risk?.riskLevel || 'Low'}
+          color={risk?.riskLevel === 'High' ? 'red' : risk?.riskLevel === 'Medium' ? 'orange' : 'green'}
+        />
       </div>
 
-      <Card title="Request for Quotations" className="mb-6">
-        <div className="space-y-4">
-          {rfqItems.map((item, idx) => (
-            <div key={idx} className="flex items-center justify-between p-4 bg-bg-section rounded-lg">
-              <div className="flex-1">
-                <h4 className="font-semibold text-brand-charcoal">{item.material}</h4>
-                <p className="text-sm text-text-secondary mt-1">
-                  Quantity: {item.quantity} • Supplier: {item.supplier}
-                </p>
-              </div>
-              <div className="flex items-center space-x-3">
-                <Badge variant={
-                  item.status === 'Sent' ? 'success' : 
-                  item.status === 'Pending' ? 'warning' : 'info'
-                }>
-                  {item.status}
-                </Badge>
-                <Button size="sm" variant="outline">View</Button>
-              </div>
+      {risk && risk.riskFactors && risk.riskFactors.length > 0 && (
+        <div className="mb-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
+          <div className="flex items-start">
+            <span className="text-2xl mr-3">⚠</span>
+            <div>
+              <p className="text-sm font-medium text-yellow-900 mb-2">Procurement Risk Analysis - {risk.riskLevel} Risk</p>
+              <ul className="text-sm text-yellow-800 space-y-1">
+                {risk.riskFactors.map((factor, idx) => (
+                  <li key={idx}>• {factor}</li>
+                ))}
+              </ul>
             </div>
-          ))}
+          </div>
         </div>
+      )}
+
+      <Card title="Purchase Orders" className="mb-8">
+        <PurchaseOrderTable
+          items={procurementItems}
+          onUpdateOrder={updateOrderStatus}
+          onUpdatePayment={updatePaymentStatus}
+          isFinalized={isFinalized}
+        />
       </Card>
 
-      <Card title="Email Preview">
-        <div className="bg-bg-section p-6 rounded-lg border border-border-warm">
-          <div className="mb-4">
-            <p className="text-sm text-text-secondary">To: supplier@abcconcrete.com</p>
-            <p className="text-sm text-text-secondary">Subject: RFQ - Concrete M30 Supply</p>
-          </div>
-          <div className="prose text-sm text-text-primary">
-            <p className="mb-3">Dear Supplier,</p>
-            <p className="mb-3">
-              We request a quotation for the following materials for our construction project:
-            </p>
-            <ul className="mb-3 ml-6 list-disc">
-              <li>Material: Concrete M30</li>
-              <li>Quantity: 245.5 m³</li>
-              <li>Delivery Location: Project Site, Sector 45</li>
-              <li>Required By: 15th February 2024</li>
-            </ul>
-            <p>Please provide your best quote including delivery charges.</p>
-          </div>
-          <div className="mt-6 flex space-x-3">
-            <Button size="sm">Send Email</Button>
-            <Button size="sm" variant="outline">Edit</Button>
-          </div>
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+        <Card title="Payment Milestones">
+          <PaymentMilestones
+            milestones={paymentMilestones}
+            onUpdateStatus={updateMilestoneStatus}
+            isFinalized={isFinalized}
+          />
+        </Card>
+
+        <Card title="Delivery Tracker" className="md:col-span-2">
+          <DeliveryTracker items={procurementItems} />
+        </Card>
+      </div>
+
+      <Card title="Cash Flow Projection">
+        <CashFlowChart cashFlowData={cashFlowData} loading={false} />
+        <div className="mt-6 p-4 bg-blue-50 rounded-lg">
+          <p className="text-sm text-blue-900">
+            <span className="font-semibold">Peak Payment Period:</span> Day {cashFlowData[cashFlowData.length - 1]?.day || 0}
+          </p>
+          <p className="text-sm text-blue-900 mt-1">
+            <span className="font-semibold">Maximum Liquidity Required:</span> ₹{((cashFlowData[cashFlowData.length - 1]?.amount || 0) / 100000).toFixed(2)}L
+          </p>
         </div>
       </Card>
     </div>

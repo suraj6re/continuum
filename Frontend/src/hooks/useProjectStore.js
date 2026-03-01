@@ -10,6 +10,7 @@ export const ProjectProvider = ({ children }) => {
   const [costSummary, setCostSummary] = useState(null);
   const [costItems, setCostItems] = useState([]);
   const [pricingAdjustment, setPricingAdjustment] = useState(1.0);
+  const [selectedSupplier, setSelectedSupplier] = useState(null);
 
   const updateQTOData = (data) => {
     setCurrentProjectId(data.project_id);
@@ -43,6 +44,7 @@ export const ProjectProvider = ({ children }) => {
     setCostSummary(null);
     setCostItems([]);
     setPricingAdjustment(1.0);
+    setSelectedSupplier(null);
   };
 
   return (
@@ -54,9 +56,11 @@ export const ProjectProvider = ({ children }) => {
       costSummary,
       costItems,
       pricingAdjustment,
+      selectedSupplier,
       updateQTOData,
       updateCostData,
       updatePricingAdjustment,
+      setSelectedSupplier,
       startProcessing,
       setError,
       reset
