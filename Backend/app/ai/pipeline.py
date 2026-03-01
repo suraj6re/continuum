@@ -8,7 +8,7 @@ from app.ai.svg_enhanced import parse_svg_enhanced
 from app.ai.intermediate_utils import save_intermediate_representation, extract_scale_candidates
 from app.ai.dwg_converter import convert_dwg_to_dxf
 
-RASTER_EXTENSIONS = {'.png', '.jpg', '.jpeg'}
+RASTER_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.img'}
 VECTOR_EXTENSIONS = {'.dxf', '.dwg'}
 PDF_EXTENSION = '.pdf'
 

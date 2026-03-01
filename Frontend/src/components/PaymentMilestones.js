@@ -1,6 +1,4 @@
-import { PAYMENT_STATUS } from '../services/procurementEngine';
-
-export default function PaymentMilestones({ milestones, onUpdateStatus, isFinalized }) {
+export default function PaymentMilestones({ milestones, onUpdateMilestone, isFinalized }) {
   if (!milestones || milestones.length === 0) {
     return (
       <div className="text-center py-8 text-gray-500">
@@ -19,6 +17,7 @@ export default function PaymentMilestones({ milestones, onUpdateStatus, isFinali
             <div>
               <h4 className="text-sm font-medium text-gray-900">{milestone.name}</h4>
               <p className="text-xs text-gray-500 mt-1">{milestone.percentage}% of total</p>
+              <p className="text-xs text-gray-500">Due: Day {milestone.due_day}</p>
             </div>
             <div className="text-right">
               <p className="text-lg font-bold text-gray-900">
@@ -32,8 +31,8 @@ export default function PaymentMilestones({ milestones, onUpdateStatus, isFinali
               <div className="w-full bg-gray-200 rounded-full h-2">
                 <div
                   className={`h-2 rounded-full ${
-                    milestone.status === PAYMENT_STATUS.COMPLETED ? 'bg-green-600' :
-                    milestone.status === PAYMENT_STATUS.PARTIAL ? 'bg-yellow-600' :
+                    milestone.status === 'Completed' ? 'bg-green-600' :
+                    milestone.status === 'Partial' ? 'bg-yellow-600' :
                     'bg-gray-400'
                   }`}
                   style={{ width: `${milestone.percentage}%` }}
@@ -43,8 +42,8 @@ export default function PaymentMilestones({ milestones, onUpdateStatus, isFinali
 
             {isFinalized ? (
               <span className={`px-2 py-1 text-xs font-medium rounded ${
-                milestone.status === PAYMENT_STATUS.COMPLETED ? 'bg-green-100 text-green-800' :
-                milestone.status === PAYMENT_STATUS.PARTIAL ? 'bg-yellow-100 text-yellow-800' :
+                milestone.status === 'Completed' ? 'bg-green-100 text-green-800' :
+                milestone.status === 'Partial' ? 'bg-yellow-100 text-yellow-800' :
                 'bg-red-100 text-red-800'
               }`}>
                 {milestone.status}
@@ -52,12 +51,12 @@ export default function PaymentMilestones({ milestones, onUpdateStatus, isFinali
             ) : (
               <select
                 value={milestone.status}
-                onChange={(e) => onUpdateStatus(milestone.id, e.target.value)}
+                onChange={(e) => onUpdateMilestone(milestone.id, { status: e.target.value })}
                 className="px-2 py-1 text-xs border border-gray-300 rounded"
               >
-                {Object.values(PAYMENT_STATUS).map(status => (
-                  <option key={status} value={status}>{status}</option>
-                ))}
+                <option value="Pending">Pending</option>
+                <option value="Partial">Partial</option>
+                <option value="Completed">Completed</option>
               </select>
             )}
           </div>
@@ -72,7 +71,7 @@ export default function PaymentMilestones({ milestones, onUpdateStatus, isFinali
           </span>
         </div>
         {totalPercentage !== 100 && (
-          <p className="text-xs text-red-600 mt-1">Warning: Total must equal 100%</p>
+          <p className="text-xs text-red-600 mt-1">⚠ Warning: Total must equal 100%</p>
         )}
       </div>
     </div>

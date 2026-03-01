@@ -1,7 +1,7 @@
 import magic
 from pathlib import Path
 
-ALLOWED_EXTENSIONS = {'.pdf', '.dwg', '.dxf', '.png', '.jpg', '.jpeg', '.cad'}
+ALLOWED_EXTENSIONS = {'.pdf', '.dwg', '.dxf', '.png', '.jpg', '.jpeg', '.img', '.cad'}
 
 FILE_TYPE_MAP = {
     'application/pdf': 'PDF',

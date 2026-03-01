@@ -8,32 +8,23 @@ import DeliveryTracker from '../components/DeliveryTracker';
 import { useProjectStore } from '../hooks/useProjectStore';
 import { useProcurement } from '../hooks/useProcurement';
 import { useSchedule } from '../hooks/useSchedule';
-import { generateCashFlowData, exportProcurementReport } from '../services/procurementEngine';
 
 export default function Procurement() {
-  const { qtoElements, selectedSupplier, processingStatus } = useProjectStore();
+  const { qtoElements, costItems, selectedSupplier, processingStatus } = useProjectStore();
   const { tasks: scheduleTasks } = useSchedule(qtoElements, processingStatus);
   const {
     procurementItems,
-    paymentMilestones,
     summary,
-    risk,
+    paymentMilestones,
+    cashFlowData,
+    riskAnalysis,
     isFinalized,
     updateOrderStatus,
     updatePaymentStatus,
-    updateMilestoneStatus,
-    finalizeProcurement
-  } = useProcurement(qtoElements, selectedSupplier, scheduleTasks);
-
-  const handleExport = () => {
-    const procurementData = {
-      items: procurementItems,
-      summary
-    };
-    exportProcurementReport(procurementData, selectedSupplier, paymentMilestones, risk);
-  };
-
-  const cashFlowData = generateCashFlowData(procurementItems, paymentMilestones);
+    updateMilestone,
+    finalizeProcurement,
+    exportReport
+  } = useProcurement(qtoElements, costItems, selectedSupplier, scheduleTasks);
 
   if (processingStatus !== 'complete') {
     return (
@@ -52,9 +43,19 @@ export default function Procurement() {
         <div className="text-center">
           <p className="text-xl text-gray-600 mb-4">Select a supplier to initiate procurement.</p>
           <p className="text-sm text-gray-500 mb-6">Go to Suppliers page and select a supplier first.</p>
-          <Button onClick={() => window.location.hash = '#suppliers'}>
+          <Button onClick={() => window.location.href = '/#/suppliers'}>
             Go to Suppliers
           </Button>
+        </div>
+      </div>
+    );
+  }
+
+  if (!summary) {
+    return (
+      <div className="flex items-center justify-center h-96">
+        <div className="text-center">
+          <p className="text-xl text-gray-600">Generating procurement plan...</p>
         </div>
       </div>
     );
@@ -66,7 +67,8 @@ export default function Procurement() {
         <div>
           <h1 className="text-3xl font-bold text-brand-charcoal mb-2">Procurement Execution</h1>
           <p className="text-text-secondary">
-            Supplier: <span className="font-semibold">{selectedSupplier.name}</span>
+            Supplier: <span className="font-semibold">{selectedSupplier.name}</span> | 
+            Location: <span className="font-semibold">{selectedSupplier.location}</span>
           </p>
         </div>
         <div className="flex space-x-2">
@@ -74,9 +76,9 @@ export default function Procurement() {
             onClick={finalizeProcurement} 
             disabled={isFinalized}
           >
-            {isFinalized ? 'Plan Finalized' : 'Finalize Procurement Plan'}
+            {isFinalized ? '✓ Plan Finalized' : 'Finalize Procurement Plan'}
           </Button>
-          <Button onClick={handleExport} variant="outline">
+          <Button onClick={exportReport} variant="outline">
             Export Report
           </Button>
         </div>
@@ -110,22 +112,40 @@ export default function Procurement() {
         />
         <ProcurementSummary
           title="Supplier Risk"
-          value={risk?.riskLevel || 'Low'}
-          color={risk?.riskLevel === 'High' ? 'red' : risk?.riskLevel === 'Medium' ? 'orange' : 'green'}
+          value={riskAnalysis?.level || 'Low'}
+          color={riskAnalysis?.level === 'High' ? 'red' : riskAnalysis?.level === 'Medium' ? 'orange' : 'green'}
         />
       </div>
 
-      {risk && risk.riskFactors && risk.riskFactors.length > 0 && (
+      {riskAnalysis && riskAnalysis.factors && riskAnalysis.factors.length > 0 && (
         <div className="mb-8 p-6 bg-yellow-50 border border-yellow-200 rounded-lg">
           <div className="flex items-start">
             <span className="text-2xl mr-3">⚠</span>
             <div>
-              <p className="text-sm font-medium text-yellow-900 mb-2">Procurement Risk Analysis - {risk.riskLevel} Risk</p>
+              <p className="text-sm font-medium text-yellow-900 mb-2">
+                Procurement Risk Analysis - {riskAnalysis.level} Risk (Score: {riskAnalysis.score})
+              </p>
               <ul className="text-sm text-yellow-800 space-y-1">
-                {risk.riskFactors.map((factor, idx) => (
+                {riskAnalysis.factors.map((factor, idx) => (
                   <li key={idx}>• {factor}</li>
                 ))}
               </ul>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {summary.delayed_items > 0 && (
+        <div className="mb-8 p-6 bg-red-50 border border-red-200 rounded-lg">
+          <div className="flex items-start">
+            <span className="text-2xl mr-3">🚨</span>
+            <div>
+              <p className="text-sm font-medium text-red-900 mb-2">
+                Delivery Schedule Alert
+              </p>
+              <p className="text-sm text-red-800">
+                {summary.delayed_items} item(s) may arrive after required date, potentially delaying construction tasks.
+              </p>
             </div>
           </div>
         </div>
@@ -144,7 +164,7 @@ export default function Procurement() {
         <Card title="Payment Milestones">
           <PaymentMilestones
             milestones={paymentMilestones}
-            onUpdateStatus={updateMilestoneStatus}
+            onUpdateMilestone={updateMilestone}
             isFinalized={isFinalized}
           />
         </Card>
@@ -155,7 +175,7 @@ export default function Procurement() {
       </div>
 
       <Card title="Cash Flow Projection">
-        <CashFlowChart cashFlowData={cashFlowData} loading={false} />
+        <CashFlowChart data={cashFlowData} />
         <div className="mt-6 p-4 bg-blue-50 rounded-lg">
           <p className="text-sm text-blue-900">
             <span className="font-semibold">Peak Payment Period:</span> Day {cashFlowData[cashFlowData.length - 1]?.day || 0}

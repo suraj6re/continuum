@@ -208,3 +208,18 @@ async def get_layer10_data(drawing_id: str):
         "success": True,
         "data": drawing.layer10_data
     }
+
+@router.get("/drawing/{drawing_id}/preprocessed-image")
+async def get_preprocessed_image(drawing_id: str):
+    """Get preprocessed image for raster files"""
+    drawing = await Drawing.get(drawing_id)
+    if not drawing:
+        raise HTTPException(status_code=404, detail="Drawing not found")
+    
+    if not drawing.preprocessed_image_path:
+        raise HTTPException(status_code=404, detail="Preprocessed image not available")
+    
+    if not os.path.exists(drawing.preprocessed_image_path):
+        raise HTTPException(status_code=404, detail="Preprocessed image file not found")
+    
+    return FileResponse(drawing.preprocessed_image_path, media_type="image/png")

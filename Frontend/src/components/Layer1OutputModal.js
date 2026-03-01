@@ -32,6 +32,20 @@ export default function Layer1OutputModal({ drawingId, onClose }) {
 
   const renderSummary = () => (
     <div className="space-y-4">
+      {layer1Data.preprocessed_image_path && (
+        <div className="bg-bg-section p-4 rounded-lg">
+          <h4 className="font-semibold text-brand-charcoal mb-3">Preprocessed Image</h4>
+          <div className="flex justify-center bg-white p-4 rounded">
+            <img 
+              src={`${process.env.REACT_APP_API_URL || 'http://localhost:8000'}/api/upload/drawing/${drawingId}/preprocessed-image`}
+              alt="Preprocessed drawing" 
+              className="max-w-full h-auto border border-gray-300 rounded"
+              style={{ maxHeight: '400px' }}
+            />
+          </div>
+        </div>
+      )}
+      
       <div className="grid grid-cols-2 gap-4">
         <div className="bg-bg-section p-4 rounded-lg">
           <p className="text-sm text-text-secondary mb-1">Pipeline Type</p>

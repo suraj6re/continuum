@@ -1,5 +1,3 @@
-import { ORDER_STATUS } from '../services/procurementEngine';
-
 export default function DeliveryTracker({ items }) {
   if (!items || items.length === 0) {
     return (
@@ -11,10 +9,10 @@ export default function DeliveryTracker({ items }) {
 
   const getProgress = (status) => {
     switch (status) {
-      case ORDER_STATUS.NOT_ORDERED: return 0;
-      case ORDER_STATUS.ORDERED: return 33;
-      case ORDER_STATUS.IN_TRANSIT: return 66;
-      case ORDER_STATUS.DELIVERED: return 100;
+      case 'Not Ordered': return 0;
+      case 'Ordered': return 33;
+      case 'In Transit': return 66;
+      case 'Delivered': return 100;
       default: return 0;
     }
   };

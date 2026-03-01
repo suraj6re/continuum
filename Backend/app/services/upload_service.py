@@ -4,6 +4,7 @@ import uuid
 import aiofiles
 import json
 import numpy as np
+import cv2
 import importlib.util
 from pathlib import Path
 from datetime import datetime
@@ -16,6 +17,7 @@ from app.ai.layer3_pipeline import run_layer3_pipeline
 from app.ai.layer4_pipeline import run_layer4_pipeline
 from app.ai.layer5_pipeline import run_layer5_pipeline
 from app.ai.layer_precision import run_layer6_pipeline
+from app.ai.raster_pipeline import preprocess_scanned_blueprint
 
 # Add layer 7-10 paths to sys.path
 layer7_path = os.path.join(os.path.dirname(__file__), '..', '..', 'layer7_cost')
@@ -107,6 +109,8 @@ except Exception as e:
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", 52428800))  # 50MB
 
+RASTER_EXTENSIONS = {'.png', '.jpg', '.jpeg', '.img'}
+
 def convert_numpy_types(obj):
     """Convert numpy types to Python native types for MongoDB serialization"""
     if isinstance(obj, dict):
@@ -168,6 +172,19 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
     
     # Process with Layer 1 pipeline
     try:
+        # Check if file is raster image and preprocess
+        file_ext = Path(file_path).suffix.lower()
+        preprocessed_image_path = None
+        
+        if file_ext in RASTER_EXTENSIONS:
+            # Run preprocessing for raster images
+            preprocessed = preprocess_scanned_blueprint(file_path)
+            
+            # Save preprocessed binary image (fully processed)
+            preprocessed_filename = f"{Path(unique_filename).stem}_preprocessed.png"
+            preprocessed_image_path = os.path.join(UPLOAD_DIR, preprocessed_filename)
+            cv2.imwrite(preprocessed_image_path, preprocessed['binary_image'])
+        
         result = route_preprocessing(file_path, file_type)
         
         # Store Layer 1 results in database
@@ -184,6 +201,7 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
         drawing.pipeline_type = result.get('pipeline_type')
         drawing.entity_count = convert_numpy_types(result.get('entity_count'))
         drawing.intermediate_json = result.get('intermediate_json')
+        drawing.preprocessed_image_path = preprocessed_image_path
         
         # Run Layer 2 pipeline if vector
         if result.get('pipeline_type') == 'vector':

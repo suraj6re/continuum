@@ -29,6 +29,7 @@ class Drawing(Document):
     pipeline_type: Optional[str] = None
     entity_count: Optional[Dict[str, int]] = None
     intermediate_json: Optional[str] = None
+    preprocessed_image_path: Optional[str] = None
     
     # Layer 2 output
     layer2_processed: bool = False

@@ -1,5 +1,3 @@
-import { ORDER_STATUS, PAYMENT_STATUS } from '../services/procurementEngine';
-
 export default function PurchaseOrderTable({ items, onUpdateOrder, onUpdatePayment, isFinalized }) {
   if (!items || items.length === 0) {
     return (
@@ -9,23 +7,36 @@ export default function PurchaseOrderTable({ items, onUpdateOrder, onUpdatePayme
     );
   }
 
+  const ORDER_STATUS = {
+    NOT_ORDERED: 'Not Ordered',
+    ORDERED: 'Ordered',
+    IN_TRANSIT: 'In Transit',
+    DELIVERED: 'Delivered'
+  };
+
+  const PAYMENT_STATUS = {
+    PENDING: 'Pending',
+    PARTIAL: 'Partial',
+    COMPLETED: 'Completed'
+  };
+
   const getStatusBadge = (status) => {
     const config = {
-      [ORDER_STATUS.NOT_ORDERED]: 'bg-gray-100 text-gray-800',
-      [ORDER_STATUS.ORDERED]: 'bg-blue-100 text-blue-800',
-      [ORDER_STATUS.IN_TRANSIT]: 'bg-yellow-100 text-yellow-800',
-      [ORDER_STATUS.DELIVERED]: 'bg-green-100 text-green-800'
+      'Not Ordered': 'bg-gray-100 text-gray-800',
+      'Ordered': 'bg-blue-100 text-blue-800',
+      'In Transit': 'bg-yellow-100 text-yellow-800',
+      'Delivered': 'bg-green-100 text-green-800'
     };
-    return config[status] || config[ORDER_STATUS.NOT_ORDERED];
+    return config[status] || 'bg-gray-100 text-gray-800';
   };
 
   const getPaymentBadge = (status) => {
     const config = {
-      [PAYMENT_STATUS.PENDING]: 'bg-red-100 text-red-800',
-      [PAYMENT_STATUS.PARTIAL]: 'bg-yellow-100 text-yellow-800',
-      [PAYMENT_STATUS.COMPLETED]: 'bg-green-100 text-green-800'
+      'Pending': 'bg-red-100 text-red-800',
+      'Partial': 'bg-yellow-100 text-yellow-800',
+      'Completed': 'bg-green-100 text-green-800'
     };
-    return config[status] || config[PAYMENT_STATUS.PENDING];
+    return config[status] || 'bg-red-100 text-red-800';
   };
 
   return (

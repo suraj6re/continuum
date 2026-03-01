@@ -1,13 +1,5 @@
-export default function CashFlowChart({ cashFlowData, loading }) {
-  if (loading) {
-    return (
-      <div className="flex items-center justify-center h-96">
-        <div className="animate-pulse w-full h-full bg-gray-200 rounded"></div>
-      </div>
-    );
-  }
-
-  if (!cashFlowData || cashFlowData.length === 0) {
+export default function CashFlowChart({ data }) {
+  if (!data || data.length === 0) {
     return (
       <div className="flex items-center justify-center h-96 text-gray-500">
         No cash flow data available
@@ -15,8 +7,8 @@ export default function CashFlowChart({ cashFlowData, loading }) {
     );
   }
 
-  const maxDay = Math.max(...cashFlowData.map(d => d.day));
-  const maxAmount = Math.max(...cashFlowData.map(d => d.amount));
+  const maxDay = Math.max(...data.map(d => d.day));
+  const maxAmount = Math.max(...data.map(d => d.amount));
 
   const chartWidth = 800;
   const chartHeight = 400;
@@ -31,7 +23,7 @@ export default function CashFlowChart({ cashFlowData, loading }) {
   };
 
   // Create path for line chart
-  const pathData = cashFlowData
+  const pathData = data
     .map((point, idx) => {
       const x = scaleX(point.day);
       const y = scaleY(point.amount);
@@ -84,7 +76,7 @@ export default function CashFlowChart({ cashFlowData, loading }) {
         />
 
         {/* Points */}
-        {cashFlowData.map((point, idx) => {
+        {data.map((point, idx) => {
           const x = scaleX(point.day);
           const y = scaleY(point.amount);
           
@@ -102,7 +94,7 @@ export default function CashFlowChart({ cashFlowData, loading }) {
 
         {/* Peak indicator */}
         {(() => {
-          const peakPoint = cashFlowData[cashFlowData.length - 1];
+          const peakPoint = data[data.length - 1];
           const x = scaleX(peakPoint.day);
           const y = scaleY(peakPoint.amount);
           return (

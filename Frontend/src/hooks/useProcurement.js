@@ -2,77 +2,38 @@ import { useState, useEffect, useMemo } from 'react';
 import { 
   generateProcurementPlan, 
   generatePaymentMilestones, 
+  generateCashFlowData,
   calculateProcurementRisk,
-  ORDER_STATUS,
-  PAYMENT_STATUS
+  exportProcurementReport
 } from '../services/procurementEngine';
-import { fetchProcurementData } from '../services/procurementService';
-import { useProjectStore } from './useProjectStore';
 
-export const useProcurement = (qtoElements, selectedSupplier, scheduleTasks) => {
-  const { currentProjectId } = useProjectStore();
+export const useProcurement = (qtoElements, costItems, selectedSupplier, scheduleTasks) => {
   const [procurementItems, setProcurementItems] = useState([]);
   const [paymentMilestones, setPaymentMilestones] = useState([]);
   const [isFinalized, setIsFinalized] = useState(false);
-  const [backendData, setBackendData] = useState(null);
+
+  const procurementData = useMemo(() => {
+    if (!selectedSupplier) return { items: [], summary: null };
+    return generateProcurementPlan(qtoElements, costItems, selectedSupplier, scheduleTasks);
+  }, [qtoElements, costItems, selectedSupplier, scheduleTasks]);
 
   useEffect(() => {
-    if (currentProjectId && procurementItems.length === 0) {
-      fetchProcurementData(currentProjectId)
-        .then(data => {
-          if (data && data.procurement_items) {
-            setBackendData(data);
-            setProcurementItems(data.procurement_items);
-            if (data.payment_milestones) {
-              setPaymentMilestones(data.payment_milestones);
-            }
-          } else if (qtoElements && selectedSupplier) {
-            const items = generateProcurementPlan(qtoElements, selectedSupplier, scheduleTasks);
-            setProcurementItems(items);
-            const totalCost = items.reduce((sum, item) => sum + item.total_cost, 0);
-            const milestones = generatePaymentMilestones(totalCost);
-            setPaymentMilestones(milestones);
-          }
-        })
-        .catch(err => {
-          console.error('Procurement fetch error:', err);
-          if (qtoElements && selectedSupplier) {
-            const items = generateProcurementPlan(qtoElements, selectedSupplier, scheduleTasks);
-            setProcurementItems(items);
-            const totalCost = items.reduce((sum, item) => sum + item.total_cost, 0);
-            const milestones = generatePaymentMilestones(totalCost);
-            setPaymentMilestones(milestones);
-          }
-        });
+    if (procurementData.items.length > 0) {
+      setProcurementItems(procurementData.items);
+      if (procurementData.summary) {
+        setPaymentMilestones(generatePaymentMilestones(procurementData.summary.total_value));
+      }
     }
-  }, [currentProjectId, qtoElements, selectedSupplier, scheduleTasks, procurementItems.length]);
+  }, [procurementData]);
 
-  const summary = useMemo(() => {
-    const totalValue = procurementItems.reduce((sum, item) => sum + item.total_cost, 0);
-    const totalItems = procurementItems.length;
-    const pendingOrders = procurementItems.filter(item => 
-      item.order_status === ORDER_STATUS.NOT_ORDERED || item.order_status === ORDER_STATUS.ORDERED
-    ).length;
-    const deliveredOrders = procurementItems.filter(item => 
-      item.order_status === ORDER_STATUS.DELIVERED
-    ).length;
-    const paymentDue = paymentMilestones
-      .filter(m => m.status === PAYMENT_STATUS.PENDING)
-      .reduce((sum, m) => sum + m.amount, 0);
-
-    return {
-      total_value: totalValue,
-      total_items: totalItems,
-      pending_orders: pendingOrders,
-      delivered_orders: deliveredOrders,
-      payment_due: paymentDue
-    };
+  const cashFlowData = useMemo(() => {
+    return generateCashFlowData(procurementItems, paymentMilestones);
   }, [procurementItems, paymentMilestones]);
 
-  const risk = useMemo(() => {
+  const riskAnalysis = useMemo(() => {
     if (!selectedSupplier) return null;
-    return calculateProcurementRisk(procurementItems, selectedSupplier);
-  }, [procurementItems, selectedSupplier]);
+    return calculateProcurementRisk(selectedSupplier, procurementItems);
+  }, [selectedSupplier, procurementItems]);
 
   const updateOrderStatus = (itemId, newStatus) => {
     setProcurementItems(prev => 
@@ -86,9 +47,9 @@ export const useProcurement = (qtoElements, selectedSupplier, scheduleTasks) => 
     );
   };
 
-  const updateMilestoneStatus = (milestoneId, newStatus) => {
-    setPaymentMilestones(prev =>
-      prev.map(m => m.id === milestoneId ? { ...m, status: newStatus } : m)
+  const updateMilestone = (milestoneId, updates) => {
+    setPaymentMilestones(prev => 
+      prev.map(m => m.id === milestoneId ? { ...m, ...updates } : m)
     );
   };
 
@@ -96,15 +57,34 @@ export const useProcurement = (qtoElements, selectedSupplier, scheduleTasks) => 
     setIsFinalized(true);
   };
 
+  const exportReport = () => {
+    const report = exportProcurementReport(
+      { items: procurementItems, summary: procurementData.summary },
+      selectedSupplier,
+      paymentMilestones,
+      riskAnalysis
+    );
+    
+    const blob = new Blob([JSON.stringify(report, null, 2)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `procurement-report-${Date.now()}.json`;
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
   return {
     procurementItems,
+    summary: procurementData.summary,
     paymentMilestones,
-    summary,
-    risk,
+    cashFlowData,
+    riskAnalysis,
     isFinalized,
     updateOrderStatus,
     updatePaymentStatus,
-    updateMilestoneStatus,
-    finalizeProcurement
+    updateMilestone,
+    finalizeProcurement,
+    exportReport
   };
 };
