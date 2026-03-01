@@ -1,16 +1,18 @@
+import { useProjectStore } from '../hooks/useProjectStore';
+
 export default function Sidebar({ activeItem, onNavigate, isOpen, onToggle }) {
   const menuItems = [
-    { id: 'overview', label: 'Overview'},
-    { id: 'upload', label: 'Upload Drawing'},
-    { id: 'qto', label: 'QTO'},
+    { id: 'overview', label: 'Overview' },
+    { id: 'upload', label: 'Upload Drawing' },
+    { id: 'qto', label: 'QTO' },
     { id: 'cost', label: 'Cost Intelligence' },
-    { id: 'schedule', label: 'Schedule'},
-    { id: 'validation', label: 'Validation & Confidence'},
-    { id: 'optimization', label: 'Optimization'},
-    { id: 'suppliers', label: 'Suppliers'},
-    { id: 'procurement', label: 'Procurement'},
-    { id: 'reports', label: 'Reports'},
-    { id: 'settings', label: 'Settings'},
+    { id: 'schedule', label: 'Schedule' },
+    { id: 'validation', label: 'Validation & Confidence' },
+    { id: 'optimization', label: 'Optimization' },
+    { id: 'suppliers', label: 'Suppliers' },
+    { id: 'procurement', label: 'Procurement' },
+    { id: 'reports', label: 'Reports' },
+    { id: 'settings', label: 'Settings' },
   ];
 
   return (

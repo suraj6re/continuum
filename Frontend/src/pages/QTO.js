@@ -1,69 +1,69 @@
+import { useEffect } from 'react';
 import Card from '../components/Card';
-import Table from '../components/Table';
-import Badge from '../components/Badge';
 import Button from '../components/Button';
+import QTOSummaryCard from '../components/QTOSummaryCard';
+import QTOTable from '../components/QTOTable';
+import { useProjectStore } from '../hooks/useProjectStore';
+import { exportQTOToCSV, exportQTOToJSON } from '../services/qtoService';
 
 export default function QTO() {
-  const qtoData = [
-    { element: 'Concrete Slab', quantity: 245.5, unit: 'm³', confidence: 98, category: 'Structural' },
-    { element: 'Steel Reinforcement', quantity: 12450, unit: 'kg', confidence: 96, category: 'Structural' },
-    { element: 'Brick Masonry', quantity: 1850, unit: 'm²', confidence: 94, category: 'Walls' },
-    { element: 'Plaster Work', quantity: 3200, unit: 'm²', confidence: 92, category: 'Finishing' },
-    { element: 'Floor Tiles', quantity: 1450, unit: 'm²', confidence: 95, category: 'Finishing' },
-  ];
+  const { qtoSummary, qtoElements, processingStatus } = useProjectStore();
 
-  const columns = [
-    { header: 'Element', accessor: 'element' },
-    { header: 'Quantity', accessor: 'quantity', render: (row) => `${row.quantity} ${row.unit}` },
-    { header: 'Category', accessor: 'category' },
-    { 
-      header: 'Confidence', 
-      accessor: 'confidence',
-      render: (row) => (
-        <Badge variant={row.confidence >= 95 ? 'success' : row.confidence >= 90 ? 'warning' : 'error'}>
-          {row.confidence}%
-        </Badge>
-      )
-    },
-  ];
+  const isLoading = processingStatus === 'processing';
+  const isComplete = processingStatus === 'complete';
 
-  const summary = [
-    { label: 'Total Elements', value: '24' },
-    { label: 'Avg Confidence', value: '95%' },
-    { label: 'High Confidence', value: '18' },
-    { label: 'Needs Review', value: '2' },
-  ];
+  const handleExportCSV = () => {
+    exportQTOToCSV(qtoElements);
+  };
+
+  const handleExportJSON = () => {
+    exportQTOToJSON({ summary: qtoSummary, elements: qtoElements });
+  };
 
   return (
     <div>
       <div className="mb-8 flex justify-between items-center">
         <div>
           <h1 className="text-3xl font-bold text-brand-charcoal mb-2">Quantity Take-Off</h1>
-          <p className="text-text-secondary">AI-extracted quantities from construction drawings</p>
+          <p className="text-text-secondary">
+            {isLoading ? 'AI extracting quantities...' : 'AI-extracted quantities from construction drawings'}
+          </p>
         </div>
-        <Button>Export QTO</Button>
+        <div className="flex space-x-2">
+          <Button onClick={handleExportCSV} disabled={!isComplete || qtoElements.length === 0}>
+            Export CSV
+          </Button>
+          <Button onClick={handleExportJSON} variant="outline" disabled={!isComplete || qtoElements.length === 0}>
+            Export JSON
+          </Button>
+        </div>
       </div>
 
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 mb-8">
-        {summary.map((item, idx) => (
-          <Card key={idx}>
-            <p className="text-text-secondary text-sm mb-1">{item.label}</p>
-            <p className="text-3xl font-bold text-brand-charcoal">{item.value}</p>
-          </Card>
-        ))}
+        <QTOSummaryCard 
+          title="Total Elements" 
+          value={qtoSummary?.total_elements || 0}
+          loading={isLoading}
+        />
+        <QTOSummaryCard 
+          title="Avg Confidence" 
+          value={qtoSummary ? `${(qtoSummary.average_confidence * 100).toFixed(0)}%` : '0%'}
+          loading={isLoading}
+        />
+        <QTOSummaryCard 
+          title="High Confidence" 
+          value={qtoSummary?.high_confidence || 0}
+          loading={isLoading}
+        />
+        <QTOSummaryCard 
+          title="Needs Review" 
+          value={qtoSummary?.needs_review || 0}
+          loading={isLoading}
+        />
       </div>
 
-      <Card title="Extracted Quantities" action={
-        <div className="flex space-x-2">
-          <select className="px-3 py-1 border border-border-warm rounded-lg text-sm">
-            <option>All Categories</option>
-            <option>Structural</option>
-            <option>Walls</option>
-            <option>Finishing</option>
-          </select>
-        </div>
-      }>
-        <Table columns={columns} data={qtoData} />
+      <Card title="Extracted Quantities">
+        <QTOTable elements={qtoElements} loading={isLoading} />
       </Card>
     </div>
   );

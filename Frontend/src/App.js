@@ -1,4 +1,5 @@
 import { useState } from 'react';
+import { ProjectProvider } from './hooks/useProjectStore';
 import MainLayout from './layouts/MainLayout';
 import Landing from './pages/Landing';
 import Login from './pages/Login';
@@ -57,9 +58,11 @@ function App() {
   };
 
   return (
-    <MainLayout activeItem={activeItem} onNavigate={handleNavigation}>
-      {renderPage()}
-    </MainLayout>
+    <ProjectProvider>
+      <MainLayout activeItem={activeItem} onNavigate={handleNavigation}>
+        {renderPage()}
+      </MainLayout>
+    </ProjectProvider>
   );
 }
 

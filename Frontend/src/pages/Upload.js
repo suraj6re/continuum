@@ -14,10 +14,13 @@ import Layer4Output from '../components/Layer4Output';
 import Layer5Output from '../components/Layer5Output';
 import Layer6Output from '../components/Layer6Output';
 import { uploadDrawing, getAllDrawings, getLayer2Data, getLayer3Data, getLayer4Data, getLayer5Data, getLayer6Data } from '../services/api';
+import { useProjectStore } from '../hooks/useProjectStore';
+import { fetchQTOData } from '../services/qtoService';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
 export default function Upload() {
+  const { startProcessing, updateQTOData, setError: setProjectError } = useProjectStore();
   const [uploadedFiles, setUploadedFiles] = useState([]);
   const [currentUpload, setCurrentUpload] = useState(null);
   const [uploadedFileData, setUploadedFileData] = useState(null);
@@ -88,6 +91,7 @@ export default function Upload() {
     setCurrentStep(0);
     setError(null);
     setShowUploadZone(false);
+    startProcessing();
     
     try {
       const response = await uploadDrawing(selectedFile);
@@ -156,6 +160,17 @@ export default function Upload() {
               }
             } catch (err) {
               console.log('Layer 6 data not available');
+            }
+          }
+          
+          // Fetch and update QTO data for project store
+          if (drawingData.data.layer4_processed) {
+            try {
+              const qtoData = await fetchQTOData(response.data.id);
+              updateQTOData(qtoData);
+            } catch (err) {
+              console.log('Failed to fetch QTO data:', err);
+              setProjectError();
             }
           }
         }
