@@ -1,6 +1,8 @@
 import os
 import uuid
 import aiofiles
+import json
+import numpy as np
 from pathlib import Path
 from datetime import datetime
 from fastapi import UploadFile, HTTPException
@@ -14,6 +16,22 @@ from app.ai.layer5_pipeline import run_layer5_pipeline
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", 52428800))  # 50MB
+
+def convert_numpy_types(obj):
+    """Convert numpy types to Python native types"""
+    if isinstance(obj, np.integer):
+        return int(obj)
+    elif isinstance(obj, np.floating):
+        return float(obj)
+    elif isinstance(obj, np.ndarray):
+        return obj.tolist()
+    elif isinstance(obj, np.bool_):
+        return bool(obj)
+    elif isinstance(obj, dict):
+        return {key: convert_numpy_types(value) for key, value in obj.items()}
+    elif isinstance(obj, list):
+        return [convert_numpy_types(item) for item in obj]
+    return obj
 
 async def save_upload_file(upload_file: UploadFile) -> Drawing:
     """Save uploaded file and create database record"""
@@ -62,15 +80,15 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
         drawing.processed = True
         drawing.processed_at = datetime.utcnow()
         drawing.status = "processed"
-        drawing.geometry = result.get('geometry')
-        drawing.bounding_box = result.get('bounding_box')
-        drawing.text = result.get('text')
-        drawing.scale_candidates = result.get('scale_candidates', [])
-        drawing.units = result.get('units')
-        drawing.layers = result.get('layers')
-        drawing.blocks = result.get('blocks')
+        drawing.geometry = convert_numpy_types(result.get('geometry'))
+        drawing.bounding_box = convert_numpy_types(result.get('bounding_box'))
+        drawing.text = convert_numpy_types(result.get('text'))
+        drawing.scale_candidates = convert_numpy_types(result.get('scale_candidates', []))
+        drawing.units = convert_numpy_types(result.get('units'))
+        drawing.layers = convert_numpy_types(result.get('layers'))
+        drawing.blocks = convert_numpy_types(result.get('blocks'))
         drawing.pipeline_type = result.get('pipeline_type')
-        drawing.entity_count = result.get('entity_count')
+        drawing.entity_count = convert_numpy_types(result.get('entity_count'))
         drawing.intermediate_json = result.get('intermediate_json')
         
         # Run Layer 2 pipeline if vector
@@ -78,28 +96,28 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
             try:
                 layer2_result = run_layer2_pipeline(result)
                 drawing.layer2_processed = True
-                drawing.layer2_data = layer2_result
+                drawing.layer2_data = convert_numpy_types(layer2_result)
                 
                 # Run Layer 3 pipeline if Layer 2 succeeded
                 if layer2_result.get('status') == 'success':
                     try:
                         layer3_result = run_layer3_pipeline(result, layer2_result)
                         drawing.layer3_processed = True
-                        drawing.layer3_data = layer3_result
+                        drawing.layer3_data = convert_numpy_types(layer3_result)
                         
                         # Run Layer 4 pipeline if Layer 3 succeeded
                         if not layer3_result.get('error'):
                             try:
                                 layer4_result = run_layer4_pipeline(layer3_result)
                                 drawing.layer4_processed = True
-                                drawing.layer4_data = layer4_result
+                                drawing.layer4_data = convert_numpy_types(layer4_result)
                                 
                                 # Run Layer 5 pipeline if Layer 4 succeeded
                                 if layer4_result.get('success'):
                                     try:
                                         layer5_result = run_layer5_pipeline(result, layer2_result, layer3_result, layer4_result)
                                         drawing.layer5_processed = True
-                                        drawing.layer5_data = layer5_result
+                                        drawing.layer5_data = convert_numpy_types(layer5_result)
                                     except Exception as e:
                                         print(f"Layer 5 processing failed: {e}")
                                         drawing.layer5_processed = False

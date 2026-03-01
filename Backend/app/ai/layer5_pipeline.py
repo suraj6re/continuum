@@ -3,7 +3,7 @@ Converts fragmented data into canonical building model (Internal Truth)
 """
 from typing import Dict, List
 import uuid
-from app.ai.layer5_duplicate_merger import merge_duplicate_nodes
+from app.ai.layer5_duplicate_merger import merge_duplicate_nodes as merge_duplicates
 from app.ai.layer5_relationship_builder import build_relationships
 from app.ai.layer5_level_assignment import assign_levels
 from app.ai.layer5_confidence_integration import integrate_confidence
@@ -180,26 +180,6 @@ def map_relationship_type(rel_type: str, source_type: str, target_type: str) -> 
     # Default
     return 'connected'
 
-def merge_duplicate_nodes(nodes: List[Dict]) -> List[Dict]:
-    """Merge duplicate nodes based on spatial proximity and type
-    
-    Args:
-        nodes: List of canonical nodes
-    
-    Returns:
-        Deduplicated nodes
-    """
-    # Simple deduplication by ID (Layer 3 should handle spatial merging)
-    seen_ids = set()
-    unique_nodes = []
-    
-    for node in nodes:
-        if node['id'] not in seen_ids:
-            seen_ids.add(node['id'])
-            unique_nodes.append(node)
-    
-    return unique_nodes
-
 def attach_metadata(nodes: List[Dict], layer2_output: Dict) -> List[Dict]:
     """Attach metadata from Layer 2 (scale, legend, schedules)
     
@@ -334,7 +314,7 @@ def run_layer5_pipeline(layer1_output: Dict, layer2_output: Dict, layer3_output:
     nodes = attach_metadata(nodes, layer2_output)
     
     # Step 3: Merge duplicates and overlaps (NEW)
-    nodes = merge_duplicate_nodes(nodes, tolerance=0.1)
+    nodes = merge_duplicates(nodes, tolerance=0.1)
     
     # Step 4: Build relationships (NEW)
     edges = build_relationships(nodes, tolerance=0.3)

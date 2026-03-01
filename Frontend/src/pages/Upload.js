@@ -36,7 +36,7 @@ export default function Upload() {
   const [layer4Data, setLayer4Data] = useState(null);
   const [layer5Data, setLayer5Data] = useState(null);
 
-  const steps = ['Upload', 'Normalize', 'Extract', 'Parse', 'QTO', 'Validate', 'Complete'];
+  const steps = ['Upload', 'Hybrid Normalization', 'Legend Intelligence', 'Element Extraction', 'Material & Dimension Parsing', 'Element Graph Model', 'Deterministic QTO', 'Validation & Confidence', 'Semantic Cost Alignment', 'Cost & Risk Engine', 'Budget Optimization', 'Supplier & Procurement', 'Explainable Scheduling', 'Human Review', 'Dashboard & Compliance'];
 
   useEffect(() => {
     loadUploadedFiles();

@@ -1,8 +1,18 @@
 export default function Stepper({ steps, currentStep, onStepClick, activeStep }) {
+  // Map display step names to internal step names
+  const stepMapping = {
+    'Upload': 'upload',
+    'Hybrid Normalization': 'normalize',
+    'Legend Intelligence': 'extract',
+    'Element Extraction': 'parse',
+    'Material & Dimension Parsing': 'qto',
+    'Element Graph Model': 'validate'
+  };
+
   return (
-    <div className="flex items-center justify-between">
+    <div className="flex items-center justify-between overflow-x-auto">
       {steps.map((step, idx) => (
-        <div key={idx} className="flex items-center flex-1">
+        <div key={idx} className="flex items-center flex-shrink-0">
           <div className="flex flex-col items-center">
             <div 
               className={`w-10 h-10 rounded-full flex items-center justify-center font-semibold text-sm transition-all
@@ -10,31 +20,22 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
                 idx < currentStep ? 'bg-emerald-600 text-white' : 
                 idx === currentStep ? 'bg-brand-orange text-white' : 
                 'bg-bg-section text-text-muted border-2 border-border-warm'}
-              ${(idx === 1 && idx < currentStep) || (idx === 2 && idx < currentStep) || (idx === 3 && idx < currentStep) || (idx === 4 && idx < currentStep) || (idx === 5 && idx < currentStep) || (idx === 0 && onStepClick) ? 'cursor-pointer hover:ring-2 hover:ring-brand-orange hover:scale-110' : ''}`}
+              ${(idx <= 5 && idx < currentStep) || (idx === 0 && onStepClick) ? 'cursor-pointer hover:ring-2 hover:ring-brand-orange hover:scale-110' : ''}`}
               onClick={() => {
-                if (idx === 0 && onStepClick) {
-                  onStepClick('upload');
-                } else if (idx === 1 && idx < currentStep && onStepClick) {
-                  onStepClick('normalize');
-                } else if (idx === 2 && idx < currentStep && onStepClick) {
-                  onStepClick('extract');
-                } else if (idx === 3 && idx < currentStep && onStepClick) {
-                  onStepClick('parse');
-                } else if (idx === 4 && idx < currentStep && onStepClick) {
-                  onStepClick('qto');
-                } else if (idx === 5 && idx < currentStep && onStepClick) {
-                  onStepClick('validate');
+                const internalStep = stepMapping[step];
+                if (internalStep && onStepClick) {
+                  onStepClick(internalStep);
                 }
               }}
             >
               {idx < currentStep ? '✓' : idx + 1}
             </div>
-            <span className={`mt-2 text-xs font-medium ${activeStep === step.toLowerCase() ? 'text-brand-orange' : idx === currentStep ? 'text-brand-orange' : 'text-text-secondary'}`}>
+            <span className={`mt-2 text-xs font-medium text-center max-w-[80px] ${activeStep === step.toLowerCase() ? 'text-brand-orange' : idx === currentStep ? 'text-brand-orange' : 'text-text-secondary'}`}>
               {step}
             </span>
           </div>
           {idx < steps.length - 1 && (
-            <div className={`flex-1 h-0.5 mx-2 ${idx < currentStep ? 'bg-emerald-600' : 'bg-border-warm'}`} />
+            <div className={`flex-1 h-0.5 mx-2 min-w-[20px] ${idx < currentStep ? 'bg-emerald-600' : 'bg-border-warm'}`} />
           )}
         </div>
       ))}

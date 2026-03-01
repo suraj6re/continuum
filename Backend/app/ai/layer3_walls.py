@@ -203,20 +203,21 @@ def _learn_wall_thickness(line_data: List[Dict]) -> Optional[float]:
     
     # Find largest cluster
     labels = clustering.labels_
-    if len(set(labels)) == 1 and labels[0] == -1:
+    labels_list = labels.tolist()
+    if len(set(labels_list)) == 1 and labels_list[0] == -1:
         # No clusters found, use median
         return float(np.median(distances))
     
     # Get most common cluster
-    unique_labels = [l for l in set(labels) if l != -1]
+    unique_labels = [l for l in set(labels_list) if l != -1]
     if not unique_labels:
         return float(np.median(distances))
     
-    cluster_sizes = [(l, list(labels).count(l)) for l in unique_labels]
+    cluster_sizes = [(l, labels_list.count(l)) for l in unique_labels]
     largest_cluster = max(cluster_sizes, key=lambda x: x[1])[0]
     
     # Return mean of largest cluster
-    cluster_distances = [distances[i] for i, l in enumerate(labels) if l == largest_cluster]
+    cluster_distances = [distances[i] for i, l in enumerate(labels_list) if l == largest_cluster]
     return float(np.mean(cluster_distances))
 
 def _pair_parallel_lines(line_data: List[Dict], learned_thickness: Optional[float]) -> List[Dict]:
