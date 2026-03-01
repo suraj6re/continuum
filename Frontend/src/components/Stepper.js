@@ -10,7 +10,7 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
                 idx < currentStep ? 'bg-emerald-600 text-white' : 
                 idx === currentStep ? 'bg-brand-orange text-white' : 
                 'bg-bg-section text-text-muted border-2 border-border-warm'}
-              ${(idx === 1 && idx < currentStep) || (idx === 2 && idx < currentStep) || (idx === 3 && idx < currentStep) || (idx === 0 && onStepClick) ? 'cursor-pointer hover:ring-2 hover:ring-brand-orange hover:scale-110' : ''}`}
+              ${(idx === 1 && idx < currentStep) || (idx === 2 && idx < currentStep) || (idx === 3 && idx < currentStep) || (idx === 4 && idx < currentStep) || (idx === 5 && idx < currentStep) || (idx === 0 && onStepClick) ? 'cursor-pointer hover:ring-2 hover:ring-brand-orange hover:scale-110' : ''}`}
               onClick={() => {
                 if (idx === 0 && onStepClick) {
                   onStepClick('upload');
@@ -20,6 +20,10 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
                   onStepClick('extract');
                 } else if (idx === 3 && idx < currentStep && onStepClick) {
                   onStepClick('parse');
+                } else if (idx === 4 && idx < currentStep && onStepClick) {
+                  onStepClick('qto');
+                } else if (idx === 5 && idx < currentStep && onStepClick) {
+                  onStepClick('validate');
                 }
               }}
             >

@@ -38,5 +38,13 @@ class Drawing(Document):
     layer3_processed: bool = False
     layer3_data: Optional[Dict[str, Any]] = None
     
+    # Layer 4 output (QTO)
+    layer4_processed: bool = False
+    layer4_data: Optional[Dict[str, Any]] = None
+    
+    # Layer 5 output (Canonical Model)
+    layer5_processed: bool = False
+    layer5_data: Optional[Dict[str, Any]] = None
+    
     class Settings:
         name = "drawings"

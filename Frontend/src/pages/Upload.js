@@ -10,7 +10,9 @@ import Layer3OutputModal from '../components/Layer3OutputModal';
 import NormalizeLayerOutput from '../components/NormalizeLayerOutput';
 import Layer2Output from '../components/Layer2Output';
 import Layer3Output from '../components/Layer3Output';
-import { uploadDrawing, getAllDrawings, getLayer2Data, getLayer3Data } from '../services/api';
+import Layer4Output from '../components/Layer4Output';
+import Layer5Output from '../components/Layer5Output';
+import { uploadDrawing, getAllDrawings, getLayer2Data, getLayer3Data, getLayer4Data, getLayer5Data } from '../services/api';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -31,6 +33,8 @@ export default function Upload() {
   const [normalizeData, setNormalizeData] = useState(null);
   const [layer2Data, setLayer2Data] = useState(null);
   const [layer3Data, setLayer3Data] = useState(null);
+  const [layer4Data, setLayer4Data] = useState(null);
+  const [layer5Data, setLayer5Data] = useState(null);
 
   const steps = ['Upload', 'Normalize', 'Extract', 'Parse', 'QTO', 'Validate', 'Complete'];
 
@@ -116,6 +120,30 @@ export default function Upload() {
               console.log('Layer 3 data not available');
             }
           }
+          
+          // Fetch Layer 4 data if available
+          if (drawingData.data.layer4_processed) {
+            try {
+              const layer4Response = await getLayer4Data(response.data.id);
+              if (layer4Response.success) {
+                setLayer4Data(layer4Response.data);
+              }
+            } catch (err) {
+              console.log('Layer 4 data not available');
+            }
+          }
+          
+          // Fetch Layer 5 data if available
+          if (drawingData.data.layer5_processed) {
+            try {
+              const layer5Response = await getLayer5Data(response.data.id);
+              if (layer5Response.success) {
+                setLayer5Data(layer5Response.data);
+              }
+            } catch (err) {
+              console.log('Layer 5 data not available');
+            }
+          }
         }
       }
       
@@ -152,6 +180,10 @@ export default function Upload() {
       setActiveStep('extract');
     } else if (step === 'parse' && layer3Data) {
       setActiveStep('parse');
+    } else if (step === 'qto' && layer4Data) {
+      setActiveStep('qto');
+    } else if (step === 'validate' && layer5Data) {
+      setActiveStep('validate');
     }
   };
 
@@ -281,6 +313,18 @@ export default function Upload() {
       {activeStep === 'parse' && layer3Data && (
         <Card>
           <Layer3Output data={layer3Data} />
+        </Card>
+      )}
+
+      {activeStep === 'qto' && layer4Data && (
+        <Card>
+          <Layer4Output data={layer4Data} />
+        </Card>
+      )}
+
+      {activeStep === 'validate' && layer5Data && (
+        <Card>
+          <Layer5Output data={layer5Data} />
         </Card>
       )}
 

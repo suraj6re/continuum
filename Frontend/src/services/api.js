@@ -42,4 +42,14 @@ export const getLayer3Data = async (drawingId) => {
   return response.data;
 };
 
+export const getLayer4Data = async (drawingId) => {
+  const response = await api.get(`/api/upload/drawing/${drawingId}/layer4`);
+  return response.data;
+};
+
+export const getLayer5Data = async (drawingId) => {
+  const response = await api.get(`/api/upload/drawing/${drawingId}/layer5`);
+  return response.data;
+};
+
 export default api;
