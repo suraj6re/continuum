@@ -46,5 +46,9 @@ class Drawing(Document):
     layer5_processed: bool = False
     layer5_data: Optional[Dict[str, Any]] = None
     
+    # Layer 6 output (Validation & Confidence)
+    layer6_processed: bool = False
+    layer6_data: Optional[Dict[str, Any]] = None
+    
     class Settings:
         name = "drawings"

@@ -1,0 +1,26 @@
+id,description,unit,rate
+1,Reinforced Cement Concrete M25,m3,7200
+2,Reinforced Cement Concrete M20,m3,6800
+3,Plain Cement Concrete M15,m3,5500
+4,Concrete M30 grade for columns,m3,7800
+5,Lean concrete M10 for leveling,m3,5000
+6,Steel reinforcement Fe500,kg,65
+7,Steel reinforcement Fe415,kg,60
+8,Structural steel sections,kg,75
+9,TMT bars 12mm diameter,kg,62
+10,MS plates and angles,kg,70
+11,Brick masonry in cement mortar 1:6,m3,6200
+12,Brick masonry in cement mortar 1:4,m3,6800
+13,Hollow concrete block masonry,m3,5500
+14,Stone masonry in cement mortar,m3,7200
+15,AAC block masonry,m3,4800
+16,Cement plaster 12mm thick,m2,280
+17,Gypsum plaster 12mm thick,m2,250
+18,Ceramic floor tiles 600x600,m2,850
+19,Vitrified tiles 600x600,m2,950
+20,Painting on walls 2 coats,m2,85
+21,Excavation in ordinary soil,m3,300
+22,Excavation in hard soil,m3,450
+23,Earth filling and compaction,m3,250
+24,Centering and shuttering for slab,m2,450
+25,Centering and shuttering for beam,m2,500

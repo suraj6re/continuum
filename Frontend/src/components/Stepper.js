@@ -5,8 +5,9 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
     'Hybrid Normalization': 'normalize',
     'Legend Intelligence': 'extract',
     'Element Extraction': 'parse',
+    'Material & Dimension Parsing': 'qto',
     'Element Graph Model': 'validate',
-    'Deterministic QTO': 'qto'
+    'Deterministic QTO': 'deterministic'
   };
 
   return (
@@ -20,7 +21,7 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
                 idx < currentStep ? 'bg-emerald-600 text-white' : 
                 idx === currentStep ? 'bg-brand-orange text-white' : 
                 'bg-bg-section text-text-muted border-2 border-border-warm'}
-              ${(idx <= 5 && idx < currentStep) || (idx === 0 && onStepClick) ? 'cursor-pointer hover:ring-2 hover:ring-brand-orange hover:scale-110' : ''}`}
+              ${(idx <= 6 && idx < currentStep) || (idx === 0 && onStepClick) ? 'cursor-pointer hover:ring-2 hover:ring-brand-orange hover:scale-110' : ''}`}
               onClick={() => {
                 const internalStep = stepMapping[step];
                 if (internalStep && onStepClick) {

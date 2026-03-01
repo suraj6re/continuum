@@ -12,7 +12,8 @@ import Layer2Output from '../components/Layer2Output';
 import Layer3Output from '../components/Layer3Output';
 import Layer4Output from '../components/Layer4Output';
 import Layer5Output from '../components/Layer5Output';
-import { uploadDrawing, getAllDrawings, getLayer2Data, getLayer3Data, getLayer4Data, getLayer5Data } from '../services/api';
+import Layer6Output from '../components/Layer6Output';
+import { uploadDrawing, getAllDrawings, getLayer2Data, getLayer3Data, getLayer4Data, getLayer5Data, getLayer6Data } from '../services/api';
 
 const API_BASE_URL = process.env.REACT_APP_API_URL || 'http://localhost:8000';
 
@@ -35,6 +36,7 @@ export default function Upload() {
   const [layer3Data, setLayer3Data] = useState(null);
   const [layer4Data, setLayer4Data] = useState(null);
   const [layer5Data, setLayer5Data] = useState(null);
+  const [layer6Data, setLayer6Data] = useState(null);
 
   const steps = ['Upload', 'Hybrid Normalization', 'Legend Intelligence', 'Element Extraction', 'Element Graph Model', 'Deterministic QTO', 'Validation & Confidence', 'Semantic Cost Alignment', 'Cost & Risk Engine', 'Budget Optimization', 'Supplier & Procurement', 'Explainable Scheduling', 'Human Review', 'Dashboard & Compliance'];
 
@@ -144,6 +146,18 @@ export default function Upload() {
               console.log('Layer 5 data not available');
             }
           }
+          
+          // Fetch Layer 6 data if available
+          if (drawingData.data.layer6_processed) {
+            try {
+              const layer6Response = await getLayer6Data(response.data.id);
+              if (layer6Response.success) {
+                setLayer6Data(layer6Response.data);
+              }
+            } catch (err) {
+              console.log('Layer 6 data not available');
+            }
+          }
         }
       }
       
@@ -182,8 +196,8 @@ export default function Upload() {
       setActiveStep('parse');
     } else if (step === 'validate' && layer4Data) {
       setActiveStep('validate');
-    } else if (step === 'qto' && layer5Data) {
-      setActiveStep('qto');
+    } else if (step === 'deterministic' && layer6Data) {
+      setActiveStep('deterministic');
     }
   };
 
@@ -325,6 +339,12 @@ export default function Upload() {
       {activeStep === 'qto' && layer5Data && (
         <Card>
           <Layer5Output data={layer5Data} />
+        </Card>
+      )}
+
+      {activeStep === 'deterministic' && layer6Data && (
+        <Card>
+          <Layer6Output data={layer6Data} />
         </Card>
       )}
 
