@@ -13,6 +13,7 @@ from app.ai.layer2_pipeline import run_layer2_pipeline
 from app.ai.layer3_pipeline import run_layer3_pipeline
 from app.ai.layer4_pipeline import run_layer4_pipeline
 from app.ai.layer5_pipeline import run_layer5_pipeline
+from app.ai.layer_precision import run_layer6_pipeline
 
 UPLOAD_DIR = os.getenv("UPLOAD_DIR", "uploads")
 MAX_FILE_SIZE = int(os.getenv("MAX_FILE_SIZE", 52428800))  # 50MB
@@ -118,6 +119,16 @@ async def save_upload_file(upload_file: UploadFile) -> Drawing:
                                         layer5_result = run_layer5_pipeline(result, layer2_result, layer3_result, layer4_result)
                                         drawing.layer5_processed = True
                                         drawing.layer5_data = convert_numpy_types(layer5_result)
+                                        
+                                        # Run Layer 6 pipeline if Layer 5 succeeded
+                                        if layer5_result.get('success'):
+                                            try:
+                                                layer6_result = run_layer6_pipeline(layer4_result, layer3_result)
+                                                drawing.layer6_processed = True
+                                                drawing.layer6_data = convert_numpy_types(layer6_result)
+                                            except Exception as e:
+                                                print(f"Layer 6 processing failed: {e}")
+                                                drawing.layer6_processed = False
                                     except Exception as e:
                                         print(f"Layer 5 processing failed: {e}")
                                         drawing.layer5_processed = False
