@@ -1,0 +1,16 @@
+supplier_id,supplier_name,material,grade,unit,rate,location,distance_km,lead_time_days,availability
+1,ABC Concrete,concrete,m25,m3,7200,Nagpur,18,2,in stock
+2,XYZ Steel,steel,fe500,kg,65,Nagpur,12,1,limited
+3,Prime Concrete,concrete,m25,m3,7100,Pune,45,3,in stock
+4,Steel Masters,steel,fe500,kg,67,Mumbai,120,5,in stock
+5,Quality Concrete,concrete,m20,m3,6800,Nagpur,15,2,in stock
+6,Reinforcement Co,steel,fe415,kg,62,Nagpur,10,1,in stock
+7,BuildMart Concrete,concrete,m30,m3,7800,Pune,50,4,limited
+8,Iron Works,steel,fe500,kg,64,Nagpur,8,1,in stock
+9,Cement Solutions,cement,,kg,8,Nagpur,20,2,in stock
+10,Brick Suppliers,brick,,nos,12,Nagpur,25,3,in stock
+11,Steel Hub,steel,fe500,kg,66,Mumbai,115,4,in stock
+12,Concrete Plus,concrete,m25,m3,7150,Nagpur,22,2,in stock
+13,TMT Bars Ltd,steel,fe500,kg,65.5,Pune,48,3,limited
+14,RCC Materials,concrete,m25,m3,7250,Mumbai,125,5,in stock
+15,Local Steel,steel,fe415,kg,61,Nagpur,5,1,in stock
