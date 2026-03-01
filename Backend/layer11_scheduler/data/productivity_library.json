@@ -1,0 +1,42 @@
+{
+  "Concrete Slab": {
+    "productivity": 50,
+    "unit": "m2/day"
+  },
+  "Steel Reinforcement": {
+    "productivity": 1000,
+    "unit": "kg/day"
+  },
+  "Brickwork": {
+    "productivity": 25,
+    "unit": "m3/day"
+  },
+  "Reinforced Cement Concrete M25": {
+    "productivity": 10,
+    "unit": "m3/day"
+  },
+  "Plastering": {
+    "productivity": 40,
+    "unit": "m2/day"
+  },
+  "Excavation": {
+    "productivity": 30,
+    "unit": "m3/day"
+  },
+  "Foundation": {
+    "productivity": 15,
+    "unit": "m3/day"
+  },
+  "Column Casting": {
+    "productivity": 8,
+    "unit": "m3/day"
+  },
+  "Beam Casting": {
+    "productivity": 12,
+    "unit": "m3/day"
+  },
+  "Flooring": {
+    "productivity": 35,
+    "unit": "m2/day"
+  }
+}

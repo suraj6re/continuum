@@ -118,5 +118,65 @@
         "status": "Drafted",
         "project_name": "Residential Tower A",
         "expected_rate": 64.0
+    },
+    {
+        "log_id": "LOG-20260301074824543030",
+        "timestamp": "2026-03-01 07:48:24",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "RFQ",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": 64.0
+    },
+    {
+        "log_id": "LOG-20260301074824567824",
+        "timestamp": "2026-03-01 07:48:24",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "WhatsApp",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": null
+    },
+    {
+        "log_id": "LOG-20260301074824583922",
+        "timestamp": "2026-03-01 07:48:24",
+        "supplier": "Concrete Plus",
+        "material": "Reinforced Cement Concrete M25",
+        "quantity": 50,
+        "unit": "m3",
+        "mode": "Email",
+        "status": "Drafted",
+        "project_name": "Commercial Complex B",
+        "expected_rate": 7150.0
+    },
+    {
+        "log_id": "LOG-20260301074824617722",
+        "timestamp": "2026-03-01 07:48:24",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "RFQ",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": 64.0
+    },
+    {
+        "log_id": "LOG-20260301074824619202",
+        "timestamp": "2026-03-01 07:48:24",
+        "supplier": "Iron Works",
+        "material": "Steel reinforcement Fe500 bars",
+        "quantity": 2500,
+        "unit": "kg",
+        "mode": "WhatsApp",
+        "status": "Drafted",
+        "project_name": "Residential Tower A",
+        "expected_rate": 64.0
     }
 ]
