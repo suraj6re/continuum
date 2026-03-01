@@ -14,7 +14,7 @@ export default function Settings() {
           <div className="space-y-4">
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">Full Name</label>
-              <input type="text" defaultValue="John Doe" className="w-full px-4 py-2 border border-border-warm rounded-lg" />
+              <input type="text" defaultValue="Vikrant Thakur" className="w-full px-4 py-2 border border-border-warm rounded-lg" />
             </div>
             <div>
               <label className="block text-sm font-medium text-text-secondary mb-2">Email</label>

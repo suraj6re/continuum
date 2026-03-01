@@ -1,4 +1,4 @@
-export default function Topbar({ user = { name: 'John Doe', role: 'Civil Engineer' }, onToggleSidebar, sidebarOpen }) {
+export default function Topbar({ user = { name: 'Vikrant Thakur', role: 'Civil Engineer' }, onToggleSidebar, sidebarOpen }) {
   return (
     <div className={`h-16 bg-bg-card border-b border-border-warm fixed top-0 right-0 z-10 flex items-center justify-between px-8 transition-all duration-300 ${sidebarOpen ? 'left-64' : 'left-0'}`}>
       <div className="flex items-center space-x-4">

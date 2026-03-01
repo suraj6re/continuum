@@ -848,22 +848,86 @@ Thank you.`,
     }
   };
 
-  const handleViewPreviousFile = (file) => {
+  const handleViewPreviousFile = async (file) => {
+    setShowUploadZone(false);
+    setAnalyzing(false);
+    setCurrentStep(steps.length - 1);
+    
     const fileUrl = `${API_BASE_URL}/uploads/${file.filename}`;
-    
-    console.log('Opening preview for:', file.filename);
-    console.log('Original filename:', file.original_filename);
-    console.log('File URL:', fileUrl);
-    
     const fileData = {
       name: file.original_filename || file.filename,
       size: file.file_size,
       type: file.file_type,
       previewUrl: fileUrl
     };
+    setUploadedFileData(fileData);
     
-    setPreviewFile(fileData);
-    setShowPreview(true);
+    try {
+      const drawingResponse = await fetch(`${API_BASE_URL}/api/upload/drawing/${file.id}`);
+      const drawingData = await drawingResponse.json();
+      
+      if (drawingData.success) {
+        setNormalizeData(drawingData.data);
+        
+        if (drawingData.data.layer2_processed) {
+          const layer2Response = await getLayer2Data(file.id);
+          if (layer2Response.success) setLayer2Data(layer2Response.data);
+        }
+        
+        if (drawingData.data.layer3_processed) {
+          const layer3Response = await getLayer3Data(file.id);
+          if (layer3Response.success) setLayer3Data(layer3Response.data);
+        }
+        
+        if (drawingData.data.layer4_processed) {
+          const layer4Response = await getLayer4Data(file.id);
+          if (layer4Response.success) setLayer4Data(layer4Response.data);
+        }
+        
+        if (drawingData.data.layer5_processed) {
+          const layer5Response = await getLayer5Data(file.id);
+          if (layer5Response.success) setLayer5Data(layer5Response.data);
+        }
+        
+        if (drawingData.data.layer6_processed) {
+          const layer6Response = await getLayer6Data(file.id);
+          if (layer6Response.success) setLayer6Data(layer6Response.data);
+        }
+        
+        if (drawingData.data.layer7_processed) {
+          const layer7Response = await getLayer7Data(file.id);
+          if (layer7Response.success && layer7Response.data?.results?.length > 0) {
+            setLayer7Data(layer7Response.data);
+          }
+        }
+        
+        if (drawingData.data.layer8_processed) {
+          const layer8Response = await getLayer8Data(file.id);
+          if (layer8Response.success && layer8Response.data?.results?.length > 0) {
+            setLayer8Data(layer8Response.data);
+          }
+        }
+        
+        if (drawingData.data.layer9_processed) {
+          const layer9Response = await getLayer9Data(file.id);
+          if (layer9Response.success && layer9Response.data?.results?.length > 0) {
+            setLayer9Data(layer9Response.data);
+          }
+        }
+        
+        if (drawingData.data.layer10_processed) {
+          const layer10Response = await getLayer10Data(file.id);
+          if (layer10Response.success && layer10Response.data?.tasks?.length > 0) {
+            setLayer10Data(layer10Response.data);
+          }
+        }
+        
+        setHumanReviewData({ total_items: 12, approved: 8, pending: 3, flagged: 1 });
+        setDashboardData({ total_items: 12, total_cost: '6.5L', duration: '6.5', confidence: '94', project_id: file.id });
+      }
+    } catch (err) {
+      console.error('Failed to load file data:', err);
+    }
   };
 
   const handleViewLayer1Output = (file) => {
@@ -1055,8 +1119,6 @@ Thank you.`,
                 <div className="flex items-center space-x-3">
                   <Badge variant="success">{file.status}</Badge>
                   <Button size="sm" variant="outline" onClick={() => handleViewPreviousFile(file)}>View</Button>
-                  <Button size="sm" onClick={() => handleViewLayer1Output(file)}>Normalize</Button>
-                  <Button size="sm" onClick={() => handleViewLayer3Output(file)}>Analyze</Button>
                 </div>
               </div>
             ))}
