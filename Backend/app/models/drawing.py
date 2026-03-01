@@ -50,5 +50,21 @@ class Drawing(Document):
     layer6_processed: bool = False
     layer6_data: Optional[Dict[str, Any]] = None
     
+    # Layer 7 output (Cost & Risk Engine)
+    layer7_processed: bool = False
+    layer7_data: Optional[Dict[str, Any]] = None
+    
+    # Layer 8 output (Supplier Discovery / Budget Optimization)
+    layer8_processed: bool = False
+    layer8_data: Optional[Dict[str, Any]] = None
+    
+    # Layer 9 output (Procurement)
+    layer9_processed: bool = False
+    layer9_data: Optional[Dict[str, Any]] = None
+    
+    # Layer 10 output (Scheduling)
+    layer10_processed: bool = False
+    layer10_data: Optional[Dict[str, Any]] = None
+    
     class Settings:
         name = "drawings"

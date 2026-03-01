@@ -7,7 +7,14 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
     'Element Extraction': 'parse',
     'Element Graph Model': 'qto',
     'Deterministic QTO': 'validate',
-    'Validation & Confidence': 'confidence'
+    'Validation & Confidence': 'confidence',
+    'Semantic Cost Alignment': 'cost',
+    'Cost & Risk Engine': 'cost',
+    'Budget Optimization': 'budget',
+    'Supplier & Procurement': 'supplier',
+    'Explainable Scheduling': 'schedule',
+    'Human Review': 'review',
+    'Dashboard & Compliance': 'dashboard'
   };
 
   return (
@@ -21,7 +28,7 @@ export default function Stepper({ steps, currentStep, onStepClick, activeStep })
                 idx < currentStep ? 'bg-emerald-600 text-white' : 
                 idx === currentStep ? 'bg-brand-orange text-white' : 
                 'bg-bg-section text-text-muted border-2 border-border-warm'}
-              ${(idx <= 6 && idx < currentStep) || (idx === 0 && onStepClick) ? 'cursor-pointer hover:ring-2 hover:ring-brand-orange hover:scale-110' : ''}`}
+              ${(idx <= 13 && idx < currentStep) || (idx === 0 && onStepClick) ? 'cursor-pointer hover:ring-2 hover:ring-brand-orange hover:scale-110' : ''}`}
               onClick={() => {
                 const internalStep = stepMapping[step];
                 if (internalStep && onStepClick) {

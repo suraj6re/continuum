@@ -3,6 +3,7 @@ from pydantic import BaseModel
 import pandas as pd
 import re
 import time
+import os
 from sentence_transformers import SentenceTransformer
 from sklearn.metrics.pairwise import cosine_similarity
 import joblib
@@ -10,11 +11,25 @@ from cost_mapper import CostMapper
 
 app = FastAPI(title="AI Cost Matcher API")
 
-model = SentenceTransformer("all-MiniLM-L6-v2")
-reranker = joblib.load('ml_reranker/model.pkl')
-df = pd.read_csv('cost_book_demo.csv')
-cost_embeddings = model.encode(df['description'].tolist())
-cost_mapper = CostMapper()
+# Get the directory where this file is located
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+
+# Initialize these as None - will be loaded on first use
+model = None
+reranker = None
+df = None
+cost_embeddings = None
+cost_mapper = None
+
+def _ensure_loaded():
+    """Lazy load the models and data on first use"""
+    global model, reranker, df, cost_embeddings, cost_mapper
+    if model is None:
+        model = SentenceTransformer("all-MiniLM-L6-v2")
+        reranker = joblib.load(os.path.join(BASE_DIR, 'ml_reranker', 'model.pkl'))
+        df = pd.read_csv(os.path.join(BASE_DIR, 'cost_book_demo.csv'))
+        cost_embeddings = model.encode(df['description'].tolist())
+        cost_mapper = CostMapper()
 
 def extract_grade(text):
     if not text:
@@ -51,6 +66,9 @@ class QTORequest(BaseModel):
 @app.post("/align_cost")
 def align_cost(request: QTORequest):
     try:
+        # Ensure models are loaded
+        _ensure_loaded()
+        
         start = time.time()
         
         # Debug: Check grade extraction

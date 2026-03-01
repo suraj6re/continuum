@@ -57,4 +57,24 @@ export const getLayer6Data = async (drawingId) => {
   return response.data;
 };
 
+export const getLayer7Data = async (drawingId) => {
+  const response = await api.get(`/api/upload/drawing/${drawingId}/layer7`);
+  return response.data;
+};
+
+export const getLayer8Data = async (drawingId) => {
+  const response = await api.get(`/api/upload/drawing/${drawingId}/layer8`);
+  return response.data;
+};
+
+export const getLayer9Data = async (drawingId) => {
+  const response = await api.get(`/api/upload/drawing/${drawingId}/layer9`);
+  return response.data;
+};
+
+export const getLayer10Data = async (drawingId) => {
+  const response = await api.get(`/api/upload/drawing/${drawingId}/layer10`);
+  return response.data;
+};
+
 export default api;

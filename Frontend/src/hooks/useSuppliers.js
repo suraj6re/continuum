@@ -6,18 +6,37 @@ import {
   generateMockSuppliers,
   RANKING_MODES 
 } from '../services/supplierEngine';
+import { fetchSupplierData } from '../services/supplierService';
+import { useProjectStore } from './useProjectStore';
 
 export const useSuppliers = (qtoElements, costSummary) => {
+  const { currentProjectId } = useProjectStore();
   const [suppliers, setSuppliers] = useState([]);
   const [selectedSupplierId, setSelectedSupplierId] = useState(null);
   const [rankingMode, setRankingMode] = useState(RANKING_MODES.BEST_VALUE);
+  const [backendSuppliers, setBackendSuppliers] = useState(null);
 
   useEffect(() => {
-    if (qtoElements && qtoElements.length > 0 && suppliers.length === 0) {
-      const mockSuppliers = generateMockSuppliers(qtoElements);
-      setSuppliers(mockSuppliers);
+    if (currentProjectId && suppliers.length === 0) {
+      fetchSupplierData(currentProjectId)
+        .then(data => {
+          if (data && data.suppliers) {
+            setBackendSuppliers(data.suppliers);
+            setSuppliers(data.suppliers);
+          } else if (qtoElements && qtoElements.length > 0) {
+            const mockSuppliers = generateMockSuppliers(qtoElements);
+            setSuppliers(mockSuppliers);
+          }
+        })
+        .catch(err => {
+          console.error('Supplier fetch error:', err);
+          if (qtoElements && qtoElements.length > 0) {
+            const mockSuppliers = generateMockSuppliers(qtoElements);
+            setSuppliers(mockSuppliers);
+          }
+        });
     }
-  }, [qtoElements, suppliers.length]);
+  }, [currentProjectId, qtoElements, suppliers.length]);
 
   const suppliersWithCosts = useMemo(() => {
     if (!costSummary) return suppliers;

@@ -6,22 +6,46 @@ import {
   ORDER_STATUS,
   PAYMENT_STATUS
 } from '../services/procurementEngine';
+import { fetchProcurementData } from '../services/procurementService';
+import { useProjectStore } from './useProjectStore';
 
 export const useProcurement = (qtoElements, selectedSupplier, scheduleTasks) => {
+  const { currentProjectId } = useProjectStore();
   const [procurementItems, setProcurementItems] = useState([]);
   const [paymentMilestones, setPaymentMilestones] = useState([]);
   const [isFinalized, setIsFinalized] = useState(false);
+  const [backendData, setBackendData] = useState(null);
 
   useEffect(() => {
-    if (qtoElements && selectedSupplier && procurementItems.length === 0) {
-      const items = generateProcurementPlan(qtoElements, selectedSupplier, scheduleTasks);
-      setProcurementItems(items);
-      
-      const totalCost = items.reduce((sum, item) => sum + item.total_cost, 0);
-      const milestones = generatePaymentMilestones(totalCost);
-      setPaymentMilestones(milestones);
+    if (currentProjectId && procurementItems.length === 0) {
+      fetchProcurementData(currentProjectId)
+        .then(data => {
+          if (data && data.procurement_items) {
+            setBackendData(data);
+            setProcurementItems(data.procurement_items);
+            if (data.payment_milestones) {
+              setPaymentMilestones(data.payment_milestones);
+            }
+          } else if (qtoElements && selectedSupplier) {
+            const items = generateProcurementPlan(qtoElements, selectedSupplier, scheduleTasks);
+            setProcurementItems(items);
+            const totalCost = items.reduce((sum, item) => sum + item.total_cost, 0);
+            const milestones = generatePaymentMilestones(totalCost);
+            setPaymentMilestones(milestones);
+          }
+        })
+        .catch(err => {
+          console.error('Procurement fetch error:', err);
+          if (qtoElements && selectedSupplier) {
+            const items = generateProcurementPlan(qtoElements, selectedSupplier, scheduleTasks);
+            setProcurementItems(items);
+            const totalCost = items.reduce((sum, item) => sum + item.total_cost, 0);
+            const milestones = generatePaymentMilestones(totalCost);
+            setPaymentMilestones(milestones);
+          }
+        });
     }
-  }, [qtoElements, selectedSupplier, scheduleTasks, procurementItems.length]);
+  }, [currentProjectId, qtoElements, selectedSupplier, scheduleTasks, procurementItems.length]);
 
   const summary = useMemo(() => {
     const totalValue = procurementItems.reduce((sum, item) => sum + item.total_cost, 0);

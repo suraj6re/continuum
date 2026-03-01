@@ -1,13 +1,17 @@
-const API_BASE_URL = 'http://localhost:8000/api';
+const API_BASE_URL = 'http://localhost:8000';
 
-export const fetchCostData = async (projectId) => {
+export const fetchCostData = async (drawingId) => {
   try {
-    const response = await fetch(`${API_BASE_URL}/cost/${projectId}`);
+    const response = await fetch(`${API_BASE_URL}/api/upload/drawing/${drawingId}/layer7`);
     if (!response.ok) throw new Error('Backend not available');
-    return response.json();
+    const result = await response.json();
+    if (result.success && result.data) {
+      return result.data;
+    }
+    throw new Error('Invalid response');
   } catch (error) {
-    // Return mock data if backend is not available
-    return generateMockCostData(projectId);
+    console.error('Failed to fetch cost data:', error);
+    return generateMockCostData(drawingId);
   }
 };
 

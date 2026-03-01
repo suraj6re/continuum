@@ -148,3 +148,63 @@ async def get_layer6_data(drawing_id: str):
         "success": True,
         "data": drawing.layer6_data
     }
+
+@router.get("/drawing/{drawing_id}/layer7", response_model=dict)
+async def get_layer7_data(drawing_id: str):
+    """Get Layer 7 cost and risk engine data"""
+    drawing = await Drawing.get(drawing_id)
+    if not drawing:
+        raise HTTPException(status_code=404, detail="Drawing not found")
+    
+    if not drawing.layer7_processed:
+        raise HTTPException(status_code=404, detail="Layer 7 data not available")
+    
+    return {
+        "success": True,
+        "data": drawing.layer7_data
+    }
+
+@router.get("/drawing/{drawing_id}/layer8", response_model=dict)
+async def get_layer8_data(drawing_id: str):
+    """Get Layer 8 supplier discovery / budget optimization data"""
+    drawing = await Drawing.get(drawing_id)
+    if not drawing:
+        raise HTTPException(status_code=404, detail="Drawing not found")
+    
+    if not drawing.layer8_processed:
+        raise HTTPException(status_code=404, detail="Layer 8 data not available")
+    
+    return {
+        "success": True,
+        "data": drawing.layer8_data
+    }
+
+@router.get("/drawing/{drawing_id}/layer9", response_model=dict)
+async def get_layer9_data(drawing_id: str):
+    """Get Layer 9 procurement data"""
+    drawing = await Drawing.get(drawing_id)
+    if not drawing:
+        raise HTTPException(status_code=404, detail="Drawing not found")
+    
+    if not drawing.layer9_processed:
+        raise HTTPException(status_code=404, detail="Layer 9 data not available")
+    
+    return {
+        "success": True,
+        "data": drawing.layer9_data
+    }
+
+@router.get("/drawing/{drawing_id}/layer10", response_model=dict)
+async def get_layer10_data(drawing_id: str):
+    """Get Layer 10 scheduling data"""
+    drawing = await Drawing.get(drawing_id)
+    if not drawing:
+        raise HTTPException(status_code=404, detail="Drawing not found")
+    
+    if not drawing.layer10_processed:
+        raise HTTPException(status_code=404, detail="Layer 10 data not available")
+    
+    return {
+        "success": True,
+        "data": drawing.layer10_data
+    }
